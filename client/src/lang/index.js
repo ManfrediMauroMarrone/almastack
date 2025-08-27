@@ -81,18 +81,41 @@ export const translations = {
                 landing: {
                     name: 'Landing Page',
                     price: '€1,500',
-                    description: 'Landing page professionale ottimizzata per conversioni'
+                    description: 'Landing page professionale ottimizzata per conversioni',
+                    features: [
+                        "Design Responsive",
+                        "Animazioni Moderne",
+                        "SEO Ottimizzato",
+                        "Form Contatti",
+                        "Analytics Integration",
+                        "Hosting 1 Anno Incluso"
+                    ]
                 },
                 website: {
                     name: 'Website Completo',
                     price: '€3,500',
                     description: 'Sito web multi-pagina completo e professionale',
-                    features: ['Fino a 10 Pagine', 'CMS Integration', 'Blog System', 'Multi-lingua', 'E-mail Professionale', 'Supporto 6 Mesi']
+                    features: [
+                        "Fino a 10 Pagine",
+                        "CMS Integration",
+                        "Blog System",
+                        "Multi-lingua",
+                        "E-mail Professionale",
+                        "Supporto 6 Mesi"
+                    ]
                 },
                 consulting: {
                     name: 'Consulenza',
                     price: '€150/h',
-                    description: 'Consulenza tecnica e strategica personalizzata'
+                    description: 'Consulenza tecnica e strategica personalizzata',
+                    features: [
+                        "Analisi Tecnica",
+                        "Architecture Review",
+                        "Performance Audit",
+                        "Security Assessment",
+                        "Team Training",
+                        "Documentazione"
+                    ]
                 }
             }
         },
@@ -129,7 +152,7 @@ export const translations = {
             privacy: 'Privacy',
             terms: 'Termini',
             cookie: 'Cookie',
-            rights: '© 2024 Almastack. Tutti i diritti riservati. Made with ❤️ in Italy'
+            rights: 'Almastack. Tutti i diritti riservati. Made with ❤️ in Italy'
         }
     },
     en: {
@@ -214,18 +237,41 @@ export const translations = {
                 landing: {
                     name: 'Landing Page',
                     price: '€1,500',
-                    description: 'Professional landing page optimized for conversions'
+                    description: 'Professional landing page optimized for conversions',
+                    features: [
+                        "Responsive Design",
+                        "Modern Animations",
+                        "SEO Optimized",
+                        "Contact Form",
+                        "Analytics Integration",
+                        "1 Year Hosting Included"
+                    ]
                 },
                 website: {
                     name: 'Complete Website',
                     price: '€3,500',
                     description: 'Complete professional multi-page website',
-                    features: ['Up to 10 Pages', 'CMS Integration', 'Blog System', 'Multi-language', 'Professional Email', '6 Months Support']
+                    features: [
+                        'Up to 10 Pages', 
+                        'CMS Integration', 
+                        'Blog System', 
+                        'Multi-language', 
+                        'Professional Email', 
+                        '6 Months Support'
+                    ]
                 },
                 consulting: {
                     name: 'Consulting',
                     price: '€150/h',
-                    description: 'Personalized technical and strategic consulting'
+                    description: 'Personalized technical and strategic consulting',
+                    features: [
+                        "Analisi Tecnica",
+                        "Architecture Review",
+                        "Performance Audit",
+                        "Security Assessment",
+                        "Team Training",
+                        "Documentazione"
+                    ]
                 }
             }
         },
@@ -262,7 +308,7 @@ export const translations = {
             privacy: 'Privacy',
             terms: 'Terms',
             cookie: 'Cookie',
-            rights: '© 2024 Almastack. All rights reserved. Made with ❤️ in Italy'
+            rights: 'Almastack. All rights reserved. Made with ❤️ in Italy'
         }
     }
 };

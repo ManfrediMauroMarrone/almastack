@@ -240,12 +240,12 @@ const HeroSection = ({ translate }) => {
 };
 
 // About Section
-const AboutSection = () => {
+const AboutSection = ({ translate }) => {
     const stats = [
-        { number: "50+", label: "Progetti Completati" },
-        { number: "30+", label: "Clienti Soddisfatti" },
-        { number: "5+", label: "Anni di Esperienza" },
-        { number: "99%", label: "Customer Satisfaction" },
+        { number: "50+", label: translate.about.stats.projects },
+        { number: "30+", label: translate.about.stats.clients },
+        { number: "5+", label: translate.about.stats.experience },
+        { number: "99%", label: translate.about.stats.satisfaction },
     ];
 
     return (
@@ -258,10 +258,10 @@ const AboutSection = () => {
                     className="text-center mb-16"
                 >
                     <h2 className="text-4xl lg:text-5xl font-bold mb-4">
-                        Chi <span className="bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">Siamo</span>
+                        {translate.about.title1} <span className="bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">{translate.about.title}</span>
                     </h2>
                     <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-                        Un team appassionato di sviluppatori e designer che trasforma le tue visioni in esperienze digitali straordinarie.
+                        {translate.about.subtitle}
                     </p>
                 </motion.div>
 
@@ -271,15 +271,15 @@ const AboutSection = () => {
                         whileInView={{ opacity: 1, x: 0 }}
                         viewport={{ once: true }}
                     >
-                        <h3 className="text-3xl font-bold mb-6">Innovazione e Passione</h3>
+                        <h3 className="text-3xl font-bold mb-6">{translate.about.heading}</h3>
                         <p className="text-gray-600 mb-4">
-                            Almastack nasce dalla passione per la tecnologia e l'innovazione. Siamo specializzati nello sviluppo di soluzioni web moderne, scalabili e performanti.
+                            {translate.about.text1}
                         </p>
                         <p className="text-gray-600 mb-4">
-                            Il nostro approccio combina creatività tecnica e design thinking per creare prodotti digitali che non solo funzionano perfettamente, ma che ispirano e coinvolgono gli utenti.
+                            {translate.about.text2}
                         </p>
                         <p className="text-gray-600">
-                            Utilizziamo le tecnologie più moderne del panorama JavaScript - React, Node.js, Next.js - per garantire soluzioni all'avanguardia e future-proof.
+                            {translate.about.text3}
                         </p>
                     </motion.div>
 
@@ -307,43 +307,43 @@ const AboutSection = () => {
 };
 
 // Services Section
-const ServicesSection = () => {
+const ServicesSection = ({ translate }) => {
     const services = [
         {
             icon: <Code className="w-8 h-8" />,
-            title: "Full Stack Development",
-            description: "Sviluppo completo di applicazioni web scalabili con React, Node.js e database moderni.",
-            features: ["API RESTful", "Database Design", "Cloud Deploy", "Performance Optimization"]
+            title: translate.services.items.fullstack.title,
+            description: translate.services.items.fullstack.description,
+            features: translate.services.items.fullstack.features
         },
         {
             icon: <Layers className="w-8 h-8" />,
-            title: "Landing & Website",
-            description: "Siti web e landing page ottimizzate per conversione e performance.",
-            features: ["Design Responsive", "SEO Optimized", "Fast Loading", "CMS Integration"]
+            title: translate.services.items.landing.title,
+            description: translate.services.items.landing.description,
+            features: translate.services.items.landing.features
         },
         {
             icon: <Brain className="w-8 h-8" />,
-            title: "AI Integration",
-            description: "Integrazione di intelligenza artificiale per automatizzare e migliorare i processi.",
-            features: ["ChatBot", "Machine Learning", "Data Analysis", "Process Automation"]
+            title: translate.services.items.ai.title,
+            description: translate.services.items.ai.description,
+            features: translate.services.items.ai.features
         },
         {
             icon: <ShoppingCart className="w-8 h-8" />,
-            title: "E-Commerce",
-            description: "Piattaforme e-commerce complete per vendere online con successo.",
-            features: ["Payment Gateway", "Inventory Management", "Multi-currency", "Analytics"]
+            title: translate.services.items.ecommerce.title,
+            description: translate.services.items.ecommerce.description,
+            features: translate.services.items.ecommerce.features
         },
         {
             icon: <Users className="w-8 h-8" />,
-            title: "Consulenza Tech",
-            description: "Consulenza strategica per ottimizzare la tua presenza digitale.",
-            features: ["Tech Stack Analysis", "Architecture Design", "Code Review", "Team Training"]
+            title: translate.services.items.consulting.title,
+            description: translate.services.items.consulting.description,
+            features: translate.services.items.consulting.features
         },
         {
             icon: <Palette className="w-8 h-8" />,
-            title: "UI/UX Design",
-            description: "Design interfaces moderne e user-friendly che deliziano gli utenti.",
-            features: ["User Research", "Wireframing", "Prototyping", "Design Systems"]
+            title: translate.services.items.uiux.title,
+            description: translate.services.items.uiux.description,
+            features: translate.services.items.uiux.features
         }
     ];
 
@@ -357,10 +357,10 @@ const ServicesSection = () => {
                     className="text-center mb-16"
                 >
                     <h2 className="text-4xl lg:text-5xl font-bold mb-4">
-                        I Nostri <span className="bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">Servizi</span>
+                        {translate.services.title1} <span className="bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">{translate.services.title2}</span>
                     </h2>
                     <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-                        Offriamo una gamma completa di servizi per portare il tuo business al livello successivo.
+                        {translate.services.subtitle}
                     </p>
                 </motion.div>
 
@@ -397,48 +397,27 @@ const ServicesSection = () => {
 };
 
 // Pricing Section
-const PricingSection = () => {
+const PricingSection = ({ translate }) => {
     const plans = [
         {
-            name: "Landing Page",
-            price: "€1,500",
-            description: "Landing page professionale ottimizzata per conversioni",
-            features: [
-                "Design Responsive",
-                "Animazioni Moderne",
-                "SEO Ottimizzato",
-                "Form Contatti",
-                "Analytics Integration",
-                "Hosting 1 Anno Incluso"
-            ],
+            name: translate.pricing.plans.landing.name,
+            price: translate.pricing.plans.landing.price,
+            description: translate.pricing.plans.landing.description,
+            features: translate.pricing.plans.landing.features,
             popular: false
         },
         {
-            name: "Website Completo",
-            price: "€3,500",
-            description: "Sito web multi-pagina completo e professionale",
-            features: [
-                "Fino a 10 Pagine",
-                "CMS Integration",
-                "Blog System",
-                "Multi-lingua",
-                "E-mail Professionale",
-                "Supporto 6 Mesi"
-            ],
+            name: translate.pricing.plans.website.name,
+            price: translate.pricing.plans.website.price,
+            description: translate.pricing.plans.website.description,
+            features: translate.pricing.plans.website.features,
             popular: true
         },
         {
-            name: "Consulenza",
-            price: "€150/h",
-            description: "Consulenza tecnica e strategica personalizzata",
-            features: [
-                "Analisi Tecnica",
-                "Architecture Review",
-                "Performance Audit",
-                "Security Assessment",
-                "Team Training",
-                "Documentazione"
-            ],
+            name: translate.pricing.plans.consulting.name,
+            price: translate.pricing.plans.consulting.price,
+            description: translate.pricing.plans.consulting.description,
+            features: translate.pricing.plans.consulting.features,
             popular: false
         }
     ];
@@ -453,10 +432,10 @@ const PricingSection = () => {
                     className="text-center mb-16"
                 >
                     <h2 className="text-4xl lg:text-5xl font-bold mb-4">
-                        I Nostri <span className="bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">Prezzi</span>
+                        {translate.pricing.title1} <span className="bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">{translate.pricing.title2}</span>
                     </h2>
                     <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-                        Prezzi trasparenti e competitivi. Per progetti Full Stack, AI ed E-commerce, contattaci per un preventivo personalizzato.
+                        {translate.pricing.subtitle}
                     </p>
                 </motion.div>
 
@@ -476,7 +455,7 @@ const PricingSection = () => {
                             {plan.popular && (
                                 <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
                                     <span className="bg-yellow-400 text-black px-4 py-1 rounded-full text-sm font-semibold">
-                                        Più Popolare
+                                        {translate.pricing.popular}
                                     </span>
                                 </div>
                             )}
@@ -509,7 +488,7 @@ const PricingSection = () => {
                                     : 'bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:shadow-lg'
                                     }`}
                             >
-                                Inizia Ora
+                                {translate.pricing.startNow}
                             </motion.button>
                         </motion.div>
                     ))}
@@ -521,16 +500,16 @@ const PricingSection = () => {
                     viewport={{ once: true }}
                     className="mt-12 text-center p-8 bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl"
                 >
-                    <h3 className="text-2xl font-bold mb-4">Progetti Enterprise?</h3>
+                    <h3 className="text-2xl font-bold mb-4">{translate.pricing.enterprise.title}</h3>
                     <p className="text-gray-600 mb-6">
-                        Per progetti Full Stack, AI Integration ed E-commerce richiedi un preventivo personalizzato.
+                        {translate.pricing.enterprise.subtitle}
                     </p>
                     <motion.button
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         className="px-8 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-full font-semibold hover:shadow-lg transition-all"
                     >
-                        Richiedi Preventivo
+                        {translate.pricing.requestQuote}
                     </motion.button>
                 </motion.div>
             </div>
@@ -539,7 +518,7 @@ const PricingSection = () => {
 };
 
 // Contact Section
-const ContactSection = () => {
+const ContactSection = ({ translate }) => {
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -565,10 +544,10 @@ const ContactSection = () => {
                     className="text-center mb-16"
                 >
                     <h2 className="text-4xl lg:text-5xl font-bold mb-4">
-                        Inizia il Tuo <span className="bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">Progetto</span>
+                        {translate.contact.title1} <span className="bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">{translate.contact.title2}</span>
                     </h2>
                     <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-                        Raccontaci la tua idea e trasformiamola insieme in realtà.
+                        {translate.contact.subtitle}
                     </p>
                 </motion.div>
 
@@ -578,9 +557,9 @@ const ContactSection = () => {
                         whileInView={{ opacity: 1, x: 0 }}
                         viewport={{ once: true }}
                     >
-                        <h3 className="text-3xl font-bold mb-6">Parliamo del tuo progetto</h3>
+                        <h3 className="text-3xl font-bold mb-6">{translate.contact.heading}</h3>
                         <p className="text-gray-600 mb-8">
-                            Siamo sempre entusiasti di conoscere nuove idee e sfide. Contattaci per una consulenza gratuita.
+                            {translate.contact.description}
                         </p>
 
                         <div className="space-y-6">
@@ -589,7 +568,7 @@ const ContactSection = () => {
                                     <Mail className="w-6 h-6" />
                                 </div>
                                 <div>
-                                    <h4 className="font-semibold mb-1">Email</h4>
+                                    <h4 className="font-semibold mb-1">{translate.contact.info.email}</h4>
                                     <p className="text-gray-600">info@almastack.com</p>
                                 </div>
                             </div>
@@ -599,7 +578,7 @@ const ContactSection = () => {
                                     <Phone className="w-6 h-6" />
                                 </div>
                                 <div>
-                                    <h4 className="font-semibold mb-1">Telefono</h4>
+                                    <h4 className="font-semibold mb-1">{translate.contact.info.phone}</h4>
                                     <p className="text-gray-600">+39 123 456 7890</p>
                                 </div>
                             </div>
@@ -609,8 +588,8 @@ const ContactSection = () => {
                                     <MapPin className="w-6 h-6" />
                                 </div>
                                 <div>
-                                    <h4 className="font-semibold mb-1">Sede</h4>
-                                    <p className="text-gray-600">Milano, Italia</p>
+                                    <h4 className="font-semibold mb-1">{translate.contact.info.location}</h4>
+                                    <p className="text-gray-600">{translate.contact.info.locationValue}</p>
                                 </div>
                             </div>
                         </div>
@@ -625,7 +604,7 @@ const ContactSection = () => {
                         <div className="space-y-6">
                             <div>
                                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                    Nome *
+                                    {translate.contact.form.placeholder.name} *
                                 </label>
                                 <input
                                     type="text"
@@ -638,7 +617,7 @@ const ContactSection = () => {
 
                             <div>
                                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                    Email *
+                                    {translate.contact.form.placeholder.email} *
                                 </label>
                                 <input
                                     type="email"
@@ -651,33 +630,33 @@ const ContactSection = () => {
 
                             <div>
                                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                    Servizio di Interesse
+                                    {translate.contact.form.selectService} *
                                 </label>
                                 <select
                                     value={formData.service}
                                     onChange={(e) => setFormData({ ...formData, service: e.target.value })}
                                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
                                 >
-                                    <option value="">Seleziona un servizio</option>
-                                    <option value="fullstack">Full Stack Development</option>
-                                    <option value="landing">Landing & Website</option>
-                                    <option value="ai">AI Integration</option>
-                                    <option value="ecommerce">E-Commerce</option>
-                                    <option value="consulting">Consulenza</option>
-                                    <option value="uiux">UI/UX Design</option>
+                                    <option value="">{translate.contact.form.selectService}</option>
+                                    <option value="fullstack">{translate.services.items.fullstack.title}</option>
+                                    <option value="landing">{translate.services.items.landing.title}</option>
+                                    <option value="ai">{translate.services.items.ai.title}</option>
+                                    <option value="ecommerce">{translate.services.items.ecommerce.title}</option>
+                                    <option value="consulting">{translate.services.items.consulting.title}</option>
+                                    <option value="uiux">{translate.services.items.uiux.title}</option>
                                 </select>
                             </div>
 
                             <div>
                                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                    Messaggio *
+                                    {translate.contact.form.message} *
                                 </label>
                                 <textarea
                                     value={formData.message}
                                     onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                                     rows={5}
                                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all resize-none"
-                                    placeholder="Descrivi il tuo progetto..."
+                                    placeholder={translate.contact.form.placeholder.message}
                                 />
                             </div>
 
@@ -687,7 +666,7 @@ const ContactSection = () => {
                                 whileTap={{ scale: 0.98 }}
                                 className="w-full py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg font-semibold hover:shadow-lg transition-all flex items-center justify-center gap-2"
                             >
-                                Invia Messaggio <ArrowRight className="w-5 h-5" />
+                                {translate.contact.form.submit} <ArrowRight className="w-5 h-5" />
                             </motion.button>
                         </div>
                     </motion.div>
@@ -698,7 +677,7 @@ const ContactSection = () => {
 };
 
 // Footer Component
-const Footer = () => {
+const Footer = ({ translate }) => {
     return (
         <footer className="bg-gray-900 text-white py-12">
             <div className="container mx-auto px-6 max-w-[1480px] m-auto">
@@ -706,19 +685,19 @@ const Footer = () => {
                     <div className="mb-6 md:mb-0">
                         <Logo />
                         <p className="text-gray-400 mt-4">
-                            Trasformiamo idee in realtà digitali
+                            {translate.footer.tagline}
                         </p>
                     </div>
 
                     <div className="flex gap-6 text-gray-400">
-                        <a href="#" className="hover:text-white transition-colors">Privacy</a>
-                        <a href="#" className="hover:text-white transition-colors">Terms</a>
-                        <a href="#" className="hover:text-white transition-colors">Cookie</a>
+                        <a href="#" className="hover:text-white transition-colors">{translate.footer.privacy}</a>
+                        <a href="#" className="hover:text-white transition-colors">{translate.footer.terms}</a>
+                        <a href="#" className="hover:text-white transition-colors">{translate.footer.cookie}</a>
                     </div>
                 </div>
 
                 <div className="mt-8 pt-8 border-t border-gray-800 text-center text-gray-400">
-                    <p>© 2024 Almastack. Tutti i diritti riservati. Made with ❤️ in Italy</p>
+                    <p>© {new Date().getFullYear()} {translate.footer.rights}</p>
                 </div>
             </div>
         </footer>
