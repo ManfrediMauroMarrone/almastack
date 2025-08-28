@@ -1,0 +1,9 @@
+@import "tailwindcss";
+
+* {
+  @apply scroll-smooth transition-all;
+}
+
+button {
+  @apply cursor-pointer;
+}
