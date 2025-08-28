@@ -6,7 +6,7 @@ const inter = Inter({ subsets: ['latin'] })
 
 export const metadata = {
     title: 'Almastack - Trasformiamo idee in realtà digitali',
-    description: 'Sviluppiamo soluzioni web innovative e scalabili per far crescere il tuo business nel mondo digitale.',
+    description: 'Sviluppiamo soluzioni web innovative e scalabili per far crescere il tuo business nel mondo digitale.'
 }
 
 export default function RootLayout({
