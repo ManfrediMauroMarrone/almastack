@@ -1,8 +1,10 @@
-import './globals.css'
-import { Inter } from 'next/font/google'
-import { Providers } from './providers'
+import Script from 'next/script';
+import { Inter } from 'next/font/google';
+import { Providers } from './providers';
 
-const inter = Inter({ subsets: ['latin'] })
+import './globals.css';
+
+const inter = Inter({ subsets: ['latin'] });
 
 export const metadata = {
     title: 'Almastack - Trasformiamo idee in realtà digitali',
@@ -16,6 +18,7 @@ export default function RootLayout({
         <html lang="it">
             <body className={inter.className}>
                 <Providers>{children}</Providers>
+                <Script src="https://scripts.simpleanalyticscdn.com/latest.js"  />
             </body>
         </html>
     )
