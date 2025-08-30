@@ -48,7 +48,7 @@ const HeroSection = ({ translate }) => {
                         initial={{ opacity: 0, scale: 0.8 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ duration: 0.8, delay: 0.2 }}
-                        className="relative"
+                        className="relative lg:block hidden"
                     >
                         <div className="relative w-full h-96 lg:h-[500px]">
                             {/* 3D Stack Visualization */}

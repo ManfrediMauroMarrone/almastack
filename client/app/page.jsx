@@ -21,7 +21,7 @@ const App = () => {
     const translate = translations[language];
 
     return (
-        <div className="min-h-screen">
+        <div className="min-h-screen w-screen overflow-x-hidden">
             <Navbar translate={translate} />
             <HeroSection translate={translate} />
             <AboutSection translate={translate} />

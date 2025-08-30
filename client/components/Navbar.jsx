@@ -23,6 +23,7 @@ const Navbar = ({ translate }) => {
     const handleLangChange = (e) => {
         setLanguage(e.target.value);
         router.push(`?lang=${e.target.value}`);
+        setIsOpen(false);
     };
 
     useEffect(() => {
@@ -104,12 +105,12 @@ const Navbar = ({ translate }) => {
                             ))}
                             <div className="mt-6 pt-6 border-t border-gray-200">
                                 <select 
-                                    onChange={(e) => setLanguage(e.target.value)} 
                                     value={language} 
+                                    onChange={handleLangChange} 
                                     className="outline-none cursor-pointer text-gray-700 font-medium text-lg"
                                 >
-                                    <option value="it">🇮🇹 Italiano</option>
-                                    <option value="en">🇬🇧 English</option>
+                                    <option value="it">Italiano</option>
+                                    <option value="en">English</option>
                                 </select>
                             </div>
                         </div>
