@@ -5,8 +5,9 @@ export const translations = {
             description: "Sviluppiamo soluzioni web innovative e scalabili per far crescere il tuo business nel mondo digitale."
         },
         nav: {
-            about: 'Chi Siamo',
+            about: 'Chi siamo',
             services: 'Servizi',
+            founders: 'Founders',
             pricing: 'Prezzi',
             contact: 'Contatti',
             startProject: 'Inizia Progetto'
@@ -75,6 +76,35 @@ export const translations = {
                 }
             }
         },
+        founders: {
+            title1: 'Founders di',
+            title2: 'Almastack',
+            subtitle: 'Le menti creative dietro Almastack',
+            mission: 'La nostra missione',
+            missionText: 'Creare soluzioni digitali che non solo risolvono problemi, ma ispirano innovazione.',
+            experience: 'Anni di esperienza',
+            projects: 'Progetti completati',
+            founders: [
+                {
+                    name: 'Alessandro D\'Antoni',
+                    role: 'Co-Founder',
+                    bio: 'Full Stack Developer con oltre 10 anni di esperienza nel settore. Specializzato in architetture scalabili e gestione di team di sviluppo per startup innovative.',
+                    specialties: ['React', 'Node.js', 'Cloud', 'AI/ML', 'Python', 'DevOps'],
+                    linkedin: 'https://www.linkedin.com/in/alessandrodantoni/',
+                    image: 'alessandro_avatar.jpeg',
+                    stats: { experience: '14+', projects: '100+' }
+                },
+                {
+                    name: 'Manfredi Mauro Marrone',
+                    role: 'Co-Founder',
+                    bio: 'Senior Software Engineer e AI specialist. Ha guidato la trasformazione digitale di numerose aziende Fortune 500 con soluzioni innovative.',
+                    specialties: ['React', 'Node.js', 'Cloud', 'AI/ML', 'Python', 'DevOps'],
+                    linkedin: 'https://www.linkedin.com/in/manfredi-mauro-marrone-364153196/',
+                    image: 'manfredi_avatar.jpeg',
+                    stats: { experience: '7+', projects: '100+' }
+                }
+            ]
+        },
         pricing: {
             title1: 'I Nostri',
             title2: 'Prezzi',
@@ -89,6 +119,7 @@ export const translations = {
             plans: {
                 landing: {
                     name: 'Landing Page',
+                    from: 'Da',
                     price: '€1,500',
                     description: 'Landing page professionale ottimizzata per conversioni',
                     features: [
@@ -102,6 +133,7 @@ export const translations = {
                 },
                 website: {
                     name: 'Website Completo',
+                    from: 'Da',
                     price: '€3,500',
                     description: 'Sito web multi-pagina completo e professionale',
                     features: [
@@ -115,6 +147,7 @@ export const translations = {
                 },
                 consulting: {
                     name: 'Consulenza',
+                    from: 'Da',
                     price: '€150/h',
                     description: 'Consulenza tecnica e strategica personalizzata',
                     features: [
@@ -176,6 +209,7 @@ export const translations = {
         nav: {
             about: 'About',
             services: 'Services',
+            founders: 'Founders',
             pricing: 'Pricing',
             contact: 'Contact',
             startProject: 'Start Project'
@@ -201,6 +235,35 @@ export const translations = {
                 experience: 'Years of Experience',
                 satisfaction: 'Customer Satisfaction'
             }
+        },
+        founders: {
+            title1: 'Inside',
+            title2: 'Almastack',
+            subtitle: 'The creative minds behind Almastack',
+            mission: 'Our Mission',
+            missionText: 'Creating digital solutions that not only solve problems but inspire innovation.',
+            experience: 'Years of experience',
+            projects: 'Completed projects',
+            founders: [
+                {
+                    name: 'Alessandro D\'Antoni',
+                    role: 'Co-Founder',
+                    bio: 'Senior Full Stack Developer and AI specialist with over 14 years of experience. Specialized in scalable architectures for innovative startups.',
+                    specialties: ['React', 'Node.js', 'Cloud', 'AI/ML', 'Python', 'DevOps'],
+                    linkedin: 'https://www.linkedin.com/in/alessandrodantoni/',
+                    image: 'alessandro_avatar.jpeg',
+                    stats: { experience: '14+', projects: '100+' }
+                },
+                {
+                    name: 'Manfredi Mauro Marrone',
+                    role: 'Co-Founder',
+                    bio: 'Senior Full Stack Developer and AI specialist. Led digital transformation for numerous companies with innovative solutions.',
+                    specialties: ['React', 'Node.js', 'Cloud', 'AI/ML', 'Python', 'DevOps'],
+                    linkedin: 'https://www.linkedin.com/in/manfredi-mauro-marrone-364153196/',
+                    image: 'manfredi_avatar.jpeg',
+                    stats: { experience: '7+', projects: '100+' }
+                }
+            ]
         },
         services: {
             title1: 'Our',
@@ -258,6 +321,7 @@ export const translations = {
             plans: {
                 landing: {
                     name: 'Landing Page',
+                    from: "From",
                     price: '€1,500',
                     description: 'Professional landing page optimized for conversions',
                     features: [
@@ -271,6 +335,7 @@ export const translations = {
                 },
                 website: {
                     name: 'Complete Website',
+                    from: "From",
                     price: '€3,500',
                     description: 'Complete professional multi-page website',
                     features: [
@@ -284,6 +349,7 @@ export const translations = {
                 },
                 consulting: {
                     name: 'Consulting',
+                    from: "From",
                     price: '€150/h',
                     description: 'Personalized technical and strategic consulting',
                     features: [

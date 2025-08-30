@@ -1,32 +1,52 @@
 'use client';
 
 import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
 
 const FloatingBlocks = ({ position = "left", className = "" }) => {
-    let blocks = { left: [], right: [] };
+    const [windowWidth, setWindowWidth] = useState(1200); // Default value for SSR
 
-    if (typeof window !== "undefined") {
-        blocks = {
-            left: [
-                { size: 40, x: 200, y: 50, delay: 0 },
-                { size: 30, x: 300, y: 100, delay: 0.2 },
-                { size: 35, x: 250, y: 200, delay: 0.4 },
-                { size: 45, x: 350, y: 150, delay: 0.6 },
-                { size: 30, x: 150, y: 150, delay: 0.8 },
-            ],
-            right: [
-                { size: 40, x: window?.innerWidth - 200, y: 50, delay: 0 },
-                { size: 30, x: window?.innerWidth - 300, y: 100, delay: 0.2 },
-                { size: 35, x: window?.innerWidth - 250, y: 200, delay: 0.4 },
-                { size: 45, x: window?.innerWidth - 350, y: 150, delay: 0.6 },
-                { size: 30, x: window?.innerWidth - 150, y: 150, delay: 0.8 },
-            ]
-        };
-    }
-    
+    useEffect(() => {
+        // Only access window on client side
+        if (typeof window !== 'undefined') {
+            setWindowWidth(window.innerWidth);
+
+            // Update on resize
+            const handleResize = () => {
+                setWindowWidth(window.innerWidth);
+            };
+
+            window.addEventListener('resize', handleResize);
+            return () => window.removeEventListener('resize', handleResize);
+        }
+    }, []);
+
+    // Define blocks with dynamic positioning
+    const getBlocks = () => {
+        if (position === 'left') {
+            return [
+                { size: 40, x: 100, y: 50, delay: 0 },
+                { size: 30, x: 200, y: 100, delay: 0.2 },
+                { size: 35, x: 150, y: 200, delay: 0.4 },
+                { size: 45, x: 250, y: 150, delay: 0.6 },
+                { size: 30, x: 50, y: 150, delay: 0.8 },
+            ];
+        } else {
+            return [
+                { size: 40, x: windowWidth - 200, y: 50, delay: 0 },
+                { size: 30, x: windowWidth - 300, y: 100, delay: 0.2 },
+                { size: 35, x: windowWidth - 250, y: 200, delay: 0.4 },
+                { size: 45, x: windowWidth - 350, y: 150, delay: 0.6 },
+                { size: 30, x: windowWidth - 150, y: 150, delay: 0.8 },
+            ];
+        }
+    };
+
+    const blocks = getBlocks();
+
     return (
         <div className={`absolute inset-0 overflow-hidden pointer-events-none ${className}`}>
-            {blocks[position]?.length > 0 && blocks[position].map((block, i) => (
+            {blocks?.length > 0 && blocks.map((block, i) => (
                 <motion.div
                     key={i}
                     className="absolute"

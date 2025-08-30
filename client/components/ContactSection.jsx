@@ -47,7 +47,7 @@ const ContactSection = ({ translate }) => {
 
     return (
         <section id={id} className="py-20 bg-gradient-to-br from-white-50 via-white to-blue-50 relative">
-            <FloatingBlocks position="left" />
+            <FloatingBlocks position="right" />
 
             <div className="container mx-auto px-6 max-w-[1480px] m-auto">
                 <motion.div
@@ -57,7 +57,7 @@ const ContactSection = ({ translate }) => {
                     className="text-center mb-16 py-12"
                 >
                     <h2 className="text-4xl lg:text-5xl font-bold mb-4">
-                        {translate.contact.title1} <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">{translate.contact.title2}</span>
+                        {translate.contact.title1} <span className="bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">{translate.contact.title2}</span>
                     </h2>
                     <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-10">
                         {translate.contact.subtitle}

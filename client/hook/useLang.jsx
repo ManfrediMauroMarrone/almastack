@@ -16,10 +16,10 @@ export const LanguageProvider = ({ children }) => {
  * Custom hook to access language context
  * @returns {{ language: "it" | "en", setLanguage: (lang: "it" | "en") => void }} - language context values
  */
-export const useLang = () => {
+export const useLang = (defaultLang) => {
     const context = useContext(LanguageContext);
     if (!context) {
         throw new Error("useLang must be used within a LanguageProvider");
     }
-    return context;
+    return { ...context, language: defaultLang || context.language };
 };

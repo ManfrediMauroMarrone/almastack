@@ -3,6 +3,7 @@
 import { Check } from "lucide-react";
 import { motion } from "framer-motion";
 import FloatingBlocks from "./FloatingBlocks";
+import { ArrowDownRight } from "./ArrowRightIcon";
 
 const PricingSection = ({ translate }) => {
     const id = translate.nav.pricing.toLowerCase().replace(' ', '-');
@@ -14,6 +15,7 @@ const PricingSection = ({ translate }) => {
     const plans = [
         {
             name: translate.pricing.plans.landing.name,
+            from: translate.pricing.plans.landing.from,
             price: translate.pricing.plans.landing.price,
             description: translate.pricing.plans.landing.description,
             features: translate.pricing.plans.landing.features,
@@ -21,6 +23,7 @@ const PricingSection = ({ translate }) => {
         },
         {
             name: translate.pricing.plans.website.name,
+            from: translate.pricing.plans.website.from,
             price: translate.pricing.plans.website.price,
             description: translate.pricing.plans.website.description,
             features: translate.pricing.plans.website.features,
@@ -28,6 +31,7 @@ const PricingSection = ({ translate }) => {
         },
         {
             name: translate.pricing.plans.consulting.name,
+            from: translate.pricing.plans.consulting.from,
             price: translate.pricing.plans.consulting.price,
             description: translate.pricing.plans.consulting.description,
             features: translate.pricing.plans.consulting.features,
@@ -37,7 +41,7 @@ const PricingSection = ({ translate }) => {
 
     return (
         <section id={id} className="py-20 bg-white relative">
-            <FloatingBlocks position="right" />
+            <FloatingBlocks position="left" />
 
             <div className="container mx-auto px-6 max-w-[1480px] m-auto">
                 <motion.div
@@ -76,8 +80,11 @@ const PricingSection = ({ translate }) => {
                             )}
 
                             <h3 className="text-2xl font-bold mb-2">{plan.name}</h3>
-                            <div className="text-4xl font-bold mb-4">
-                                {plan.price}
+                            <div className="text-4xl font-bold mb-4 flex gap-2 relative">
+                                <span className="absolute top-2 left-1">
+                                    <ArrowDownRight size={18} className="text-gray-300" />
+                                </span>
+                                <sup className="text-sm">{plan.from}</sup> {plan.price}
                             </div>
                             <p className={`mb-6 ${plan.popular ? 'text-white/90' : 'text-gray-600'}`}>
                                 {plan.description}
@@ -116,8 +123,8 @@ const PricingSection = ({ translate }) => {
                     viewport={{ once: true }}
                     className="mt-28 py-18 text-center p-8 bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl"
                 >
-                    <h3 className="text-2xl font-bold mb-4">{translate.pricing.enterprise.title}</h3>
-                    <p className="text-gray-600 mb-6">
+                    <h3 className="text-3xl font-bold mb-4">{translate.pricing.enterprise.title}</h3>
+                    <p className="text-gray-600 mb-8 text-lg">
                         {translate.pricing.enterprise.subtitle}
                     </p>
                     <motion.a

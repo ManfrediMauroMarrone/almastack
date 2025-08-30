@@ -15,7 +15,7 @@ const HeroSection = ({ translate }) => {
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ duration: 0.8 }}
                     >
-                        <h1 className="text-5xl lg:text-7xl font-bold mb-6 leading-tight">
+                        <h1 className="text-5xl lg:text-7xl font-bold mb-6 leading-tight mt-6 lg:mt-0">
                             {translate.hero.title1}{' '}
                             <span className="bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
                                 {translate.hero.title2}
@@ -52,7 +52,7 @@ const HeroSection = ({ translate }) => {
                     >
                         <div className="relative w-full h-96 lg:h-[500px]">
                             {/* 3D Stack Visualization */}
-                            <img src={headerV2.src} alt="Header" className="object-cover w-full h-full" />
+                            <img src={headerV2.src} alt="Header" width={500} height={500} className="object-cover w-full h-full" />
                         </div>
                     </motion.div>
                 </div>
