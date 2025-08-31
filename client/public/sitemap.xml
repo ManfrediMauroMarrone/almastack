@@ -72,4 +72,14 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://almastack.it/#founders?lang=en"/>
   </url>
   
+  <!-- Privacy Policy page -->
+  <url>
+    <loc>https://almastack.it/privacy-policy</loc>
+    <lastmod>2025-08-30T00:00:00+00:00</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.60</priority>
+    <xhtml:link rel="alternate" hreflang="it" href="https://almastack.it/privacy-policy?lang=it"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://almastack.it/privacy-policy?lang=en"/>
+  </url>
+  
 </urlset>
