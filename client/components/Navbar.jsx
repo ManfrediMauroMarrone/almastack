@@ -38,7 +38,7 @@ const Navbar = ({ translate }) => {
         >
             <div className="container mx-auto px-6 py-4 bg-white/80 backdrop-blur-xl">
                 <div className="flex items-center justify-between max-w-[1480px] m-auto">
-                    <a href="#">
+                    <a href="/">
                         <Logo />
                     </a>
 
