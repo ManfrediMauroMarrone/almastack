@@ -1,5 +1,6 @@
 'use client';
 
+import Link from "next/link";
 import Logo from "./Logo";
 
 const Footer = ({ translate }) => {
@@ -15,9 +16,7 @@ const Footer = ({ translate }) => {
                     </div>
 
                     <div className="flex gap-6 text-gray-400">
-                        <a href="#" className="hover:text-white transition-colors">{translate.footer.privacy}</a>
-                        <a href="#" className="hover:text-white transition-colors">{translate.footer.terms}</a>
-                        <a href="#" className="hover:text-white transition-colors">{translate.footer.cookie}</a>
+                        <Link href="/privacy-policy" replace className="hover:text-white transition-colors">{translate.footer.privacy}</Link>
                     </div>
                     <div>
                         <a className="text-xs text-gray-400" href="https://www.vecteezy.com/free-vector/server">Server Vectors by Vecteezy</a>

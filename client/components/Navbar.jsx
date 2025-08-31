@@ -69,7 +69,7 @@ const Navbar = ({ translate }) => {
                     <button
                         onClick={() => setIsOpen(!isOpen)}
                         className="md:hidden text-gray-700"
-                        ariaLabel="Toggle Menu"
+                        aria-label="Toggle Menu"
                         title="Toggle Menu"
                     >
                         {isOpen ? <X size={24} /> : <Menu size={24} />}

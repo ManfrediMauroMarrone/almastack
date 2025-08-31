@@ -91,7 +91,7 @@ export const translations = {
                     bio: 'Full Stack Developer con oltre 10 anni di esperienza nel settore. Specializzato in architetture scalabili e gestione di team di sviluppo per startup innovative.',
                     specialties: ['React', 'Node.js', 'Cloud', 'AI/ML', 'Python', 'DevOps'],
                     linkedin: 'https://www.linkedin.com/in/alessandrodantoni/',
-                    image: 'alessandro_avatar-min.webp',
+                    image: '/alessandro_avatar-min.webp',
                     stats: { experience: '14+', projects: '100+' }
                 },
                 {
@@ -100,7 +100,7 @@ export const translations = {
                     bio: 'Senior Software Engineer e AI specialist. Ha guidato la trasformazione digitale di numerose aziende Fortune 500 con soluzioni innovative.',
                     specialties: ['React', 'Node.js', 'Cloud', 'AI/ML', 'Python', 'DevOps'],
                     linkedin: 'https://www.linkedin.com/in/manfredi-mauro-marrone-364153196/',
-                    image: 'manfredi_avatar-min.webp',
+                    image: '/manfredi_avatar-min.webp',
                     stats: { experience: '7+', projects: '100+' }
                 }
             ]
@@ -195,7 +195,7 @@ export const translations = {
         },
         footer: {
             tagline: 'Trasformiamo idee in realtà digitali',
-            privacy: 'Privacy',
+            privacy: 'Privacy Policy',
             terms: 'Termini',
             cookie: 'Cookie',
             rights: 'Almastack. Tutti i diritti riservati. Made with ❤️ in Italy'
@@ -251,7 +251,7 @@ export const translations = {
                     bio: 'Senior Full Stack Developer and AI specialist with over 14 years of experience. Specialized in scalable architectures for innovative startups.',
                     specialties: ['React', 'Node.js', 'Cloud', 'AI/ML', 'Python', 'DevOps'],
                     linkedin: 'https://www.linkedin.com/in/alessandrodantoni/',
-                    image: 'alessandro_avatar-min.webp',
+                    image: '/alessandro_avatar-min.webp',
                     stats: { experience: '14+', projects: '100+' }
                 },
                 {
@@ -260,7 +260,7 @@ export const translations = {
                     bio: 'Senior Full Stack Developer and AI specialist. Led digital transformation for numerous companies with innovative solutions.',
                     specialties: ['React', 'Node.js', 'Cloud', 'AI/ML', 'Python', 'DevOps'],
                     linkedin: 'https://www.linkedin.com/in/manfredi-mauro-marrone-364153196/',
-                    image: 'manfredi_avatar-min.webp',
+                    image: '/manfredi_avatar-min.webp',
                     stats: { experience: '7+', projects: '100+' }
                 }
             ]
@@ -397,7 +397,7 @@ export const translations = {
         },
         footer: {
             tagline: 'Transforming ideas into digital realities',
-            privacy: 'Privacy',
+            privacy: 'Privacy Policy',
             terms: 'Terms',
             cookie: 'Cookie',
             rights: 'Almastack. All rights reserved. Made with ❤️ in Italy'
