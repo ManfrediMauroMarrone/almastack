@@ -179,7 +179,7 @@ const ContactSection = ({ translate }) => {
                                     <div>
                                         <h4 className="font-semibold mb-1">{translate.contact.info.email}</h4>
                                         <p className="text-gray-600">
-                                            <a className="hover:text-purple-500" href="mailto:info.almastack@gmail.com">info.almastack@gmail.com</a>
+                                            <a className="hover:text-purple-500" href="mailto:info@almastack.it">info@almastack.it</a>
                                         </p>
                                     </div>
                                 </div>
