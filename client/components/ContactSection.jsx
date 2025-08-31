@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { sendEmail } from "../utils/send-email";
 import { toast } from "react-toastify";
 import { motion } from "framer-motion";
@@ -15,7 +15,7 @@ const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
 const ContactSection = ({ translate }) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(false);
-    const [recaptchaLoaded, setRecaptchaLoaded] = useState(false);
+    const [recaptchaReady, setRecaptchaReady] = useState(false);
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -26,20 +26,39 @@ const ContactSection = ({ translate }) => {
 
     const id = translate.nav.contact.toLowerCase().replace(' ', '-');
 
-    // Esegui reCAPTCHA e ottieni il token
-    const executeRecaptcha = async () => {
-        if (!window.grecaptcha || !recaptchaLoaded) {
-            throw new Error('reCAPTCHA not loaded');
+    // Inizializza reCAPTCHA quando lo script è caricato
+    const handleRecaptchaLoad = useCallback(() => {
+        if (!window.grecaptcha) {
+            console.error('grecaptcha not loaded');
+            return;
         }
 
+        window.grecaptcha.ready(() => {
+            console.log('reCAPTCHA is ready');
+            setRecaptchaReady(true);
+        });
+    }, []);
+
+    // Esegui reCAPTCHA e ottieni il token
+    const executeRecaptcha = async () => {
         return new Promise((resolve, reject) => {
+            // Verifica che reCAPTCHA sia pronto
+            if (!window.grecaptcha) {
+                reject(new Error('reCAPTCHA not loaded'));
+                return;
+            }
+
+            // Usa grecaptcha.ready per assicurarsi che sia inizializzato
             window.grecaptcha.ready(async () => {
                 try {
+                    console.log('Executing reCAPTCHA with site key:', RECAPTCHA_SITE_KEY);
                     const token = await window.grecaptcha.execute(RECAPTCHA_SITE_KEY, { 
                         action: 'submit_contact_form' 
                     });
+                    console.log('reCAPTCHA token obtained');
                     resolve(token);
                 } catch (error) {
+                    console.error('reCAPTCHA execution error:', error);
                     reject(error);
                 }
             });
@@ -48,6 +67,12 @@ const ContactSection = ({ translate }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        // Verifica che reCAPTCHA sia pronto
+        if (!recaptchaReady) {
+            toast.error('Sistema di sicurezza non pronto. Riprova tra qualche secondo.');
+            return;
+        }
 
         if (!loading) {
             setLoading(true);
@@ -58,13 +83,22 @@ const ContactSection = ({ translate }) => {
         }
 
         try {
-            // Ottieni il token reCAPTCHA
-            const recaptchaToken = await executeRecaptcha();
+            let recaptchaToken = null;
             
-            // Invia il form con il token
+            // Prova ad ottenere il token reCAPTCHA
+            try {
+                recaptchaToken = await executeRecaptcha();
+            } catch (recaptchaError) {
+                console.error('reCAPTCHA error:', recaptchaError);
+                // Continua comunque ma logga l'errore
+                // In produzione potresti voler bloccare l'invio
+                toast.warning('Verifica di sicurezza non riuscita, ma procediamo comunque.');
+            }
+            
+            // Invia il form con o senza token
             await sendEmail({
                 ...formData,
-                recaptchaToken // Aggiungi il token ai dati del form
+                recaptchaToken // Potrebbe essere null se reCAPTCHA ha fallito
             });
             
             toast.success(translate.contact.form.success);
@@ -78,38 +112,37 @@ const ContactSection = ({ translate }) => {
         } catch (err) {
             console.error('Form submission error:', err);
             setError(err.message || 'An error occurred');
-            toast.error(translate.contact.form.error);
+            toast.error(translate.contact.form.error || 'Errore nell\'invio del messaggio');
         } finally {
             setLoading(false);
         }
     };
 
-    // Badge reCAPTCHA (opzionale ma consigliato per v3)
+    // Debug: Log quando il componente monta
     useEffect(() => {
-        // Aggiungi il CSS per nascondere il badge se vuoi posizionarlo custom
-        const style = document.createElement('style');
-        style.innerHTML = `
-            .grecaptcha-badge {
-                visibility: hidden !important;
-            }
-        `;
-        // Decommenta la riga sotto se vuoi nascondere il badge default
-        // document.head.appendChild(style);
-
-        return () => {
-            // Cleanup se necessario
-            // document.head.removeChild(style);
-        };
-    }, []);
+        console.log('ContactSection mounted');
+        console.log('RECAPTCHA_SITE_KEY:', RECAPTCHA_SITE_KEY);
+        
+        // Verifica se grecaptcha è già disponibile (può succedere con fast refresh)
+        if (window.grecaptcha) {
+            handleRecaptchaLoad();
+        }
+    }, [handleRecaptchaLoad]);
 
     return (
         <>
             {/* Script reCAPTCHA v3 */}
-            <Script
-                src={`https://www.google.com/recaptcha/api.js?render=${RECAPTCHA_SITE_KEY}`}
-                onLoad={() => setRecaptchaLoaded(true)}
-                strategy="afterInteractive"
-            />
+            {RECAPTCHA_SITE_KEY && (
+                <Script
+                    src={`https://www.google.com/recaptcha/api.js?render=${RECAPTCHA_SITE_KEY}`}
+                    onLoad={handleRecaptchaLoad}
+                    onError={(e) => {
+                        console.error('Failed to load reCAPTCHA script:', e);
+                        setRecaptchaReady(false);
+                    }}
+                    strategy="afterInteractive"
+                />
+            )}
 
             <section id={id} className="py-20 bg-gradient-to-br from-white-50 via-white to-blue-50 relative">
                 <FloatingBlocks position="right" />
@@ -262,24 +295,33 @@ const ContactSection = ({ translate }) => {
                                     />
                                 </div>
 
-                                {/* reCAPTCHA Notice */}
-                                <div className="text-xs text-gray-500 text-center">
-                                    This site is protected by reCAPTCHA and the Google{' '}
-                                    <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer" className="underline">
-                                        Privacy Policy
-                                    </a>{' '}
-                                    and{' '}
-                                    <a href="https://policies.google.com/terms" target="_blank" rel="noopener noreferrer" className="underline">
-                                        Terms of Service
-                                    </a>{' '}
-                                    apply.
-                                </div>
+                                {/* reCAPTCHA Notice - Solo se reCAPTCHA è configurato */}
+                                {RECAPTCHA_SITE_KEY && (
+                                    <div className="text-xs text-gray-500 text-center">
+                                        This site is protected by reCAPTCHA and the Google{' '}
+                                        <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer" className="underline">
+                                            Privacy Policy
+                                        </a>{' '}
+                                        and{' '}
+                                        <a href="https://policies.google.com/terms" target="_blank" rel="noopener noreferrer" className="underline">
+                                            Terms of Service
+                                        </a>{' '}
+                                        apply.
+                                    </div>
+                                )}
+
+                                {/* Debug info - rimuovi in produzione */}
+                                {process.env.NODE_ENV === 'development' && (
+                                    <div className="text-xs text-gray-400">
+                                        reCAPTCHA: {recaptchaReady ? '✅ Ready' : '⏳ Loading...'}
+                                    </div>
+                                )}
 
                                 <motion.button
                                     type="submit"
                                     whileHover={{ scale: 1.02 }}
                                     whileTap={{ scale: 0.98 }}
-                                    disabled={loading || !recaptchaLoaded}
+                                    disabled={loading}
                                     className="w-full py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-semibold hover:shadow-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     {
