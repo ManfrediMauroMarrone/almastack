@@ -3,7 +3,10 @@ import Script from 'next/script';
 import { Inter } from 'next/font/google';
 import { Providers } from './providers';
 
+// Import animate.css globally
+import 'animate.css';
 import './globals.css';
+
 import { _metadata, _viewport, jsonLdOrganization, jsonLdService, jsonLdWebSite } from '../config/meta';
 import SplashScreen from '../components/SplashScreen';
 

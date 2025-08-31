@@ -1,6 +1,6 @@
 'use client';
 
-import { LanguageProvider } from "../hook/useLang";
+import { LanguageProvider } from "../hooks/useLang";
 import { ToastContainer } from 'react-toastify';
 
 export function Providers({ children }) {

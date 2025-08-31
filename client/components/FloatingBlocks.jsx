@@ -1,7 +1,7 @@
 'use client';
 
-import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
+import 'animate.css';
 
 const FloatingBlocks = ({ position = "left", className = "" }) => {
     const [windowWidth, setWindowWidth] = useState(1200); // Default value for SSR
@@ -47,19 +47,13 @@ const FloatingBlocks = ({ position = "left", className = "" }) => {
     return (
         <div className={`absolute inset-0 overflow-hidden pointer-events-none ${className}`}>
             {blocks?.length > 0 && blocks.map((block, i) => (
-                <motion.div
+                <div
                     key={i}
-                    className="absolute"
-                    style={{ left: `${block.x}px`, top: `${block.y}px` }}
-                    animate={{
-                        y: [0, -20, 0],
-                        rotate: [0, 5, 0],
-                    }}
-                    transition={{
-                        duration: 4,
-                        delay: block.delay,
-                        repeat: Infinity,
-                        ease: "easeInOut"
+                    className="absolute animate__animated animate__pulse animate__infinite animate__slower"
+                    style={{ 
+                        left: `${block.x}px`, 
+                        top: `${block.y}px`,
+                        animationDelay: `${block.delay}s`
                     }}
                 >
                     <div
@@ -69,7 +63,7 @@ const FloatingBlocks = ({ position = "left", className = "" }) => {
                         <div className="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-indigo-500/20 transform rotate-45 rounded-lg" />
                         <div className="absolute inset-0 bg-gradient-to-tr from-indigo-500/10 to-purple-500/10 transform rotate-45 rounded-lg blur-xl" />
                     </div>
-                </motion.div>
+                </div>
             ))}
         </div>
     );

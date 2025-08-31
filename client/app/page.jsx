@@ -1,7 +1,7 @@
 'use client';
 
 import { useSearchParams } from 'next/navigation';
-import { useLang } from '../hook/useLang';
+import { useLang } from '../hooks/useLang';
 import { translations } from '../lang';
 
 import Navbar from '../components/Navbar';

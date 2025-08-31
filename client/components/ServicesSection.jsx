@@ -1,11 +1,14 @@
 'use client';
 
-import { motion } from "framer-motion";
 import FloatingBlocks from "./FloatingBlocks";
 import { Brain, Check, Code, Layers, Palette, ShoppingCart, Users } from "lucide-react";
+import { useAnimateOnScroll } from "../hooks/useAnimateOnScroll";
+import 'animate.css';
 
 const ServicesSection = ({ translate }) => {
     const id = translate.nav.services.toLowerCase().replace(' ', '-');
+    
+    const { ref: titleRef, animateClass: titleAnimation, style: titleStyle } = useAnimateOnScroll('fadeInUp', 0);
 
     const services = [
         {
@@ -51,11 +54,10 @@ const ServicesSection = ({ translate }) => {
             <FloatingBlocks position="left" />
 
             <div className="container mx-auto px-6 max-w-[1480px] m-auto">
-                <motion.div
-                    initial={{ opacity: 0, y: 50 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    className="text-center mb-16 py-12"
+                <div
+                    ref={titleRef}
+                    style={titleStyle}
+                    className={`text-center mb-16 py-12 ${titleAnimation}`}
                 >
                     <h2 className="text-4xl lg:text-5xl font-bold mb-4">
                         {translate.services.title1} <span className="bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">{translate.services.title2}</span>
@@ -63,34 +65,34 @@ const ServicesSection = ({ translate }) => {
                     <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-10">
                         {translate.services.subtitle}
                     </p>
-                </motion.div>
+                </div>
 
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {services.map((service, index) => (
-                        <motion.div
-                            key={index}
-                            initial={{ opacity: 0, y: 50 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
-                            transition={{ delay: index * 0.1 }}
-                            whileHover={{ y: -10, transition: { duration: 0.2 } }}
-                            className="bg-white rounded-2xl p-8 shadow-xl hover:shadow-2xl transition-all"
-                        >
-                            <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-500 rounded-2xl flex items-center justify-center text-white mb-6">
-                                {service.icon}
+                    {services.map((service, index) => {
+                        const { ref: serviceRef, animateClass: serviceAnimation, style: serviceStyle } = useAnimateOnScroll('fadeInUp', index * 100);
+                        return (
+                            <div
+                                key={index}
+                                ref={serviceRef}
+                                style={serviceStyle}
+                                className={`bg-white rounded-2xl p-8 shadow-xl hover:shadow-2xl transition-all hover:-translate-y-2 ${serviceAnimation}`}
+                            >
+                                <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-500 rounded-2xl flex items-center justify-center text-white mb-6">
+                                    {service.icon}
+                                </div>
+                                <h3 className="text-2xl font-bold mb-4">{service.title}</h3>
+                                <p className="text-gray-600 mb-6">{service.description}</p>
+                                <ul className="space-y-2">
+                                    {service.features.map((feature, i) => (
+                                        <li key={i} className="flex items-center text-sm text-gray-600">
+                                            <Check className="w-4 h-4 text-blue-600 mr-2 flex-shrink-0" />
+                                            {feature}
+                                        </li>
+                                    ))}
+                                </ul>
                             </div>
-                            <h3 className="text-2xl font-bold mb-4">{service.title}</h3>
-                            <p className="text-gray-600 mb-6">{service.description}</p>
-                            <ul className="space-y-2">
-                                {service.features.map((feature, i) => (
-                                    <li key={i} className="flex items-center text-sm text-gray-600">
-                                        <Check className="w-4 h-4 text-blue-600 mr-2 flex-shrink-0" />
-                                        {feature}
-                                    </li>
-                                ))}
-                            </ul>
-                        </motion.div>
-                    ))}
+                        );
+                    })}
                 </div>
             </div>
         </section>

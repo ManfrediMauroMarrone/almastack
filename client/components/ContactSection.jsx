@@ -3,11 +3,12 @@
 import { useState, useEffect, useCallback } from "react";
 import { sendEmail } from "../utils/send-email";
 import { toast } from "react-toastify";
-import { motion } from "framer-motion";
 import FloatingBlocks from "./FloatingBlocks";
 import { ArrowRight, Mail, MapPin, Phone } from "lucide-react";
 import LoadingSpinner from "./LoadingSpinner";
 import Script from 'next/script';
+import { useAnimateOnScroll } from "../hooks/useAnimateOnScroll";
+import 'animate.css';
 
 // Configurazione reCAPTCHA
 const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
@@ -25,6 +26,11 @@ const ContactSection = ({ translate }) => {
     });
 
     const id = translate.nav.contact.toLowerCase().replace(' ', '-');
+    
+    // Use only fadeIn for Contact Section
+    const { ref: titleRef, animateClass: titleAnimation, style: titleStyle } = useAnimateOnScroll('fadeIn', 0);
+    const { ref: infoRef, animateClass: infoAnimation, style: infoStyle } = useAnimateOnScroll('fadeIn', 100);
+    const { ref: formRef, animateClass: formAnimation, style: formStyle } = useAnimateOnScroll('fadeIn', 200);
 
     // Inizializza reCAPTCHA quando lo script è caricato
     const handleRecaptchaLoad = useCallback(() => {
@@ -51,11 +57,9 @@ const ContactSection = ({ translate }) => {
             // Usa grecaptcha.ready per assicurarsi che sia inizializzato
             window.grecaptcha.ready(async () => {
                 try {
-                    console.log('Executing reCAPTCHA with site key:', RECAPTCHA_SITE_KEY);
                     const token = await window.grecaptcha.execute(RECAPTCHA_SITE_KEY, { 
                         action: 'submit_contact_form' 
                     });
-                    console.log('reCAPTCHA token obtained');
                     resolve(token);
                 } catch (error) {
                     console.error('reCAPTCHA execution error:', error);
@@ -89,7 +93,6 @@ const ContactSection = ({ translate }) => {
             try {
                 recaptchaToken = await executeRecaptcha();
             } catch (recaptchaError) {
-                console.error('reCAPTCHA error:', recaptchaError);
                 // Continua comunque ma logga l'errore
                 // In produzione potresti voler bloccare l'invio
                 toast.warning('Verifica di sicurezza non riuscita, ma procediamo comunque.');
@@ -110,7 +113,6 @@ const ContactSection = ({ translate }) => {
                 message: '' 
             });
         } catch (err) {
-            console.error('Form submission error:', err);
             setError(err.message || 'An error occurred');
             toast.error(translate.contact.form.error || 'Errore nell\'invio del messaggio');
         } finally {
@@ -120,9 +122,6 @@ const ContactSection = ({ translate }) => {
 
     // Debug: Log quando il componente monta
     useEffect(() => {
-        console.log('ContactSection mounted');
-        console.log('RECAPTCHA_SITE_KEY:', RECAPTCHA_SITE_KEY);
-        
         // Verifica se grecaptcha è già disponibile (può succedere con fast refresh)
         if (window.grecaptcha) {
             handleRecaptchaLoad();
@@ -148,11 +147,10 @@ const ContactSection = ({ translate }) => {
                 <FloatingBlocks position="right" />
 
                 <div className="container mx-auto px-6 max-w-[1480px] m-auto">
-                    <motion.div
-                        initial={{ opacity: 0, y: 50 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        className="text-center mb-16 py-12"
+                    <div
+                        ref={titleRef}
+                        style={titleStyle}
+                        className={`text-center mb-16 py-12 ${titleAnimation}`}
                     >
                         <h2 className="text-4xl lg:text-5xl font-bold mb-4">
                             {translate.contact.title1} <span className="bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">{translate.contact.title2}</span>
@@ -160,13 +158,13 @@ const ContactSection = ({ translate }) => {
                         <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-10">
                             {translate.contact.subtitle}
                         </p>
-                    </motion.div>
+                    </div>
 
                     <div className="grid lg:grid-cols-2 gap-12 max-w-6xl mx-auto">
-                        <motion.div
-                            initial={{ opacity: 0, x: -50 }}
-                            whileInView={{ opacity: 1, x: 0 }}
-                            viewport={{ once: true }}
+                        <div
+                            ref={infoRef}
+                            style={infoStyle}
+                            className={infoAnimation}
                         >
                             <h3 className="text-3xl font-bold mb-6">{translate.contact.heading}</h3>
                             <p className="text-gray-600 text-lg mb-8 leading-8">
@@ -210,13 +208,12 @@ const ContactSection = ({ translate }) => {
                                     </div>
                                 </div>
                             </div>
-                        </motion.div>
+                        </div>
 
-                        <motion.div
-                            initial={{ opacity: 0, x: 50 }}
-                            whileInView={{ opacity: 1, x: 0 }}
-                            viewport={{ once: true }}
-                            className="bg-white rounded-2xl shadow-xl p-8"
+                        <div
+                            ref={formRef}
+                            style={formStyle}
+                            className={`bg-white rounded-2xl shadow-xl p-8 ${formAnimation}`}
                         >
                             <form onSubmit={handleSubmit} className="space-y-6">
                                 <div>
@@ -310,12 +307,10 @@ const ContactSection = ({ translate }) => {
                                     </div>
                                 )}
 
-                                <motion.button
+                                <button
                                     type="submit"
-                                    whileHover={{ scale: 1.02 }}
-                                    whileTap={{ scale: 0.98 }}
                                     disabled={loading}
-                                    className="w-full py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-semibold hover:shadow-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="w-full py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-semibold hover:shadow-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-105 active:scale-95"
                                 >
                                     {
                                         loading ? (
@@ -326,9 +321,9 @@ const ContactSection = ({ translate }) => {
                                             </>
                                         )
                                     }
-                                </motion.button>
+                                </button>
                             </form>
-                        </motion.div>
+                        </div>
                     </div>
                 </div>
             </section>
