@@ -38,7 +38,7 @@ const Navbar = ({ translate }) => {
         >
             <div className="container mx-auto px-6 py-4 bg-white/80 backdrop-blur-xl">
                 <div className="flex items-center justify-between max-w-[1480px] m-auto">
-                    <a href="#">
+                    <a href="/#">
                         <Logo />
                     </a>
 
@@ -69,6 +69,8 @@ const Navbar = ({ translate }) => {
                     <button
                         onClick={() => setIsOpen(!isOpen)}
                         className="md:hidden text-gray-700"
+                        aria-label="Toggle Menu"
+                        title="Toggle Menu"
                     >
                         {isOpen ? <X size={24} /> : <Menu size={24} />}
                     </button>

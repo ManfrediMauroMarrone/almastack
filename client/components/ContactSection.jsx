@@ -266,6 +266,8 @@ const ContactSection = ({ translate }) => {
                                         onChange={(e) => setFormData({ ...formData, service: e.target.value })}
                                         className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                                         required
+                                        name="service"
+                                        title={translate.contact.form.selectService}
                                     >
                                         <option value="">{translate.contact.form.selectService}</option>
                                         <option value="fullstack">{translate.services.items.fullstack.title}</option>
@@ -310,6 +312,8 @@ const ContactSection = ({ translate }) => {
                                 <button
                                     type="submit"
                                     disabled={loading}
+                                    aria-label={translate.contact.form.submit}
+                                    title={translate.contact.form.submit}
                                     className="w-full py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-semibold hover:shadow-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-105 active:scale-95"
                                 >
                                     {
