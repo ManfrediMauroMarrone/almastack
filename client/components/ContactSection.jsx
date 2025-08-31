@@ -310,13 +310,6 @@ const ContactSection = ({ translate }) => {
                                     </div>
                                 )}
 
-                                {/* Debug info - rimuovi in produzione */}
-                                {process.env.NODE_ENV === 'development' && (
-                                    <div className="text-xs text-gray-400">
-                                        reCAPTCHA: {recaptchaReady ? '✅ Ready' : '⏳ Loading...'}
-                                    </div>
-                                )}
-
                                 <motion.button
                                     type="submit"
                                     whileHover={{ scale: 1.02 }}
