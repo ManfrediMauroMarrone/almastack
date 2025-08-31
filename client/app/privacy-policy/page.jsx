@@ -46,7 +46,7 @@ const PrivacyPolicy = () => {
                 content: (
                     <div className="space-y-4">
                         <div>
-                            <h4 className="font-semibold mb-2">2.1 Dati forniti volontariamente dall'utente</h4>
+                            <h4 className="font-semibold mb-2">2.1 Dati forniti volontariamente dall&apos;utente</h4>
                             <ul className="list-disc list-inside space-y-1 text-gray-700">
                                 <li><strong>Dati di contatto:</strong> nome, cognome, indirizzo email, numero di telefono</li>
                                 <li><strong>Dati aziendali:</strong> nome azienda, ruolo, settore di attività</li>
@@ -59,7 +59,7 @@ const PrivacyPolicy = () => {
                             <ul className="list-disc list-inside space-y-1 text-gray-700">
                                 <li><strong>Dati di navigazione:</strong> indirizzo IP, tipo di browser, sistema operativo, pagine visitate, tempo di permanenza</li>
                                 <li><strong>Cookie e tecnologie simili:</strong> come specificato nella sezione Cookie Policy</li>
-                                <li><strong>Dati di geolocalizzazione:</strong> se consentito dal dispositivo dell'utente</li>
+                                <li><strong>Dati di geolocalizzazione:</strong> se consentito dal dispositivo dell&apos;utente</li>
                                 <li><strong>Dati analitici:</strong> interazioni con il sito, percorsi di navigazione, sorgenti di traffico</li>
                             </ul>
                         </div>
@@ -72,7 +72,7 @@ const PrivacyPolicy = () => {
                 content: (
                     <div className="space-y-4">
                         <div className="bg-blue-50 p-4 rounded-lg">
-                            <h4 className="font-semibold mb-2">3.1 Finalità necessarie all'erogazione dei servizi</h4>
+                            <h4 className="font-semibold mb-2">3.1 Finalità necessarie all&apos;erogazione dei servizi</h4>
                             <ul className="list-disc list-inside space-y-1 text-gray-700">
                                 <li>Rispondere alle richieste di informazioni e preventivi</li>
                                 <li>Fornire i servizi di sviluppo web, consulenza IT e soluzioni digitali</li>
@@ -89,23 +89,23 @@ const PrivacyPolicy = () => {
                                 <li>Informazioni su nuovi servizi, offerte e aggiornamenti</li>
                                 <li>Inviti a eventi, webinar e iniziative formative</li>
                             </ul>
-                            <p className="mt-2 text-sm"><strong>Base giuridica:</strong> Consenso dell'interessato (Art. 6.1.a GDPR)</p>
+                            <p className="mt-2 text-sm"><strong>Base giuridica:</strong> Consenso dell&apos;interessato (Art. 6.1.a GDPR)</p>
                         </div>
 
                         <div className="bg-purple-50 p-4 rounded-lg">
                             <h4 className="font-semibold mb-2">3.3 Finalità di profilazione (previo consenso)</h4>
                             <ul className="list-disc list-inside space-y-1 text-gray-700">
-                                <li>Analisi delle preferenze e comportamenti per personalizzare l'offerta</li>
+                                <li>Analisi delle preferenze e comportamenti per personalizzare l&apos;offerta</li>
                                 <li>Creazione di profili utente per migliorare i servizi</li>
                             </ul>
-                            <p className="mt-2 text-sm"><strong>Base giuridica:</strong> Consenso dell'interessato (Art. 6.1.a GDPR)</p>
+                            <p className="mt-2 text-sm"><strong>Base giuridica:</strong> Consenso dell&apos;interessato (Art. 6.1.a GDPR)</p>
                         </div>
 
                         <div className="bg-gray-50 p-4 rounded-lg">
                             <h4 className="font-semibold mb-2">3.4 Finalità legittime</h4>
                             <ul className="list-disc list-inside space-y-1 text-gray-700">
                                 <li>Prevenzione frodi e sicurezza del sito</li>
-                                <li>Miglioramento dei servizi e dell'esperienza utente</li>
+                                <li>Miglioramento dei servizi e dell&apos;esperienza utente</li>
                                 <li>Analisi statistiche aggregate e anonime</li>
                             </ul>
                             <p className="mt-2 text-sm"><strong>Base giuridica:</strong> Legittimo interesse del Titolare (Art. 6.1.f GDPR)</p>
@@ -138,7 +138,7 @@ const PrivacyPolicy = () => {
                             <h4 className="font-semibold mb-2">5.1 Categorie di destinatari</h4>
                             <ul className="list-disc list-inside space-y-2 text-gray-700">
                                 <li><strong>Fornitori di servizi tecnici:</strong> hosting provider, servizi cloud, manutenzione IT</li>
-                                <li><strong>Servizi di email marketing:</strong> per l'invio di newsletter (es. Mailchimp, SendGrid)</li>
+                                <li><strong>Servizi di email marketing:</strong> per l&apos;invio di newsletter (es. Mailchimp, SendGrid)</li>
                                 <li><strong>Servizi di analytics:</strong> Google Analytics, con IP anonimizzato</li>
                                 <li><strong>Servizi di AI e automazione:</strong> OpenAI, Claude (Anthropic), per funzionalità AI integrate</li>
                                 <li><strong>Professionisti e consulenti:</strong> commercialisti, avvocati, consulenti (vincolati da obbligo di riservatezza)</li>
@@ -166,7 +166,7 @@ const PrivacyPolicy = () => {
                         <p className="mb-3">I dati personali sono conservati per:</p>
                         <ul className="list-disc list-inside space-y-2 text-gray-700">
                             <li><strong>Dati contrattuali:</strong> per tutta la durata del rapporto e per 10 anni dalla conclusione (obblighi fiscali)</li>
-                            <li><strong>Dati di contatto per marketing:</strong> fino a revoca del consenso o massimo 24 mesi dall'ultimo contatto</li>
+                            <li><strong>Dati di contatto per marketing:</strong> fino a revoca del consenso o massimo 24 mesi dall&apos;ultimo contatto</li>
                             <li><strong>Dati di navigazione:</strong> massimo 26 mesi</li>
                             <li><strong>Cookie tecnici:</strong> per la durata della sessione</li>
                             <li><strong>Cookie di profilazione:</strong> massimo 12 mesi</li>
@@ -191,7 +191,7 @@ const PrivacyPolicy = () => {
                             </div>
                             <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-3 rounded-lg">
                                 <strong>Cancellazione</strong>
-                                <p className="text-sm text-gray-700">Richiedere la cancellazione dei dati ("diritto all'oblio")</p>
+                                <p className="text-sm text-gray-700">Richiedere la cancellazione dei dati (&quot;diritto all&apos;oblio&quot;)</p>
                             </div>
                             <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-3 rounded-lg">
                                 <strong>Limitazione</strong>
@@ -227,7 +227,7 @@ const PrivacyPolicy = () => {
                     <div className="space-y-4">
                         <div>
                             <h4 className="font-semibold mb-2">8.1 Cosa sono i cookie</h4>
-                            <p className="text-gray-700">I cookie sono piccoli file di testo salvati sul dispositivo dell'utente durante la navigazione.</p>
+                            <p className="text-gray-700">I cookie sono piccoli file di testo salvati sul dispositivo dell&apos;utente durante la navigazione.</p>
                         </div>
 
                         <div>
@@ -264,7 +264,7 @@ const PrivacyPolicy = () => {
 
                         <div>
                             <h4 className="font-semibold mb-2">8.3 Gestione dei cookie</h4>
-                            <p className="text-gray-700">L'utente può gestire le preferenze sui cookie tramite:</p>
+                            <p className="text-gray-700">L&apos;utente può gestire le preferenze sui cookie tramite:</p>
                             <ul className="list-disc list-inside text-gray-700 mt-2">
                                 <li>Il banner di consenso presente sul sito</li>
                                 <li>Le impostazioni del proprio browser</li>
@@ -368,7 +368,7 @@ const PrivacyPolicy = () => {
                             <ul className="list-disc list-inside space-y-1 text-gray-700">
                                 <li><strong>Navigation data:</strong> IP address, browser type, operating system, pages visited, time spent</li>
                                 <li><strong>Cookies and similar technologies:</strong> as specified in the Cookie Policy section</li>
-                                <li><strong>Geolocation data:</strong> if permitted by the user's device</li>
+                                <li><strong>Geolocation data:</strong> if permitted by the user&apos;s device</li>
                                 <li><strong>Analytics data:</strong> site interactions, navigation paths, traffic sources</li>
                             </ul>
                         </div>
@@ -500,7 +500,7 @@ const PrivacyPolicy = () => {
                             </div>
                             <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-3 rounded-lg">
                                 <strong>Erasure</strong>
-                                <p className="text-sm text-gray-700">Request data deletion ("right to be forgotten")</p>
+                                <p className="text-sm text-gray-700">Request data deletion (&quot;right to be forgotten&quot;)</p>
                             </div>
                             <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-3 rounded-lg">
                                 <strong>Restriction</strong>
@@ -536,7 +536,7 @@ const PrivacyPolicy = () => {
                     <div className="space-y-4">
                         <div>
                             <h4 className="font-semibold mb-2">8.1 What are cookies</h4>
-                            <p className="text-gray-700">Cookies are small text files saved on the user's device during navigation.</p>
+                            <p className="text-gray-700">Cookies are small text files saved on the user&apos;s device during navigation.</p>
                         </div>
 
                         <div>
