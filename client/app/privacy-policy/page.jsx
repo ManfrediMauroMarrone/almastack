@@ -179,7 +179,7 @@ const PrivacyPolicy = () => {
                 title: '7. DIRITTI DELL\'INTERESSATO',
                 content: (
                     <div className="space-y-4">
-                        <p>Ai sensi degli Art. 15-22 GDPR, l'utente ha diritto di:</p>
+                        <p>Ai sensi degli Art. 15-22 GDPR, l&apos;utente ha diritto di:</p>
                         <div className="grid md:grid-cols-2 gap-3">
                             <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-3 rounded-lg">
                                 <strong>Accesso</strong>
