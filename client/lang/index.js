@@ -88,7 +88,7 @@ export const translations = {
                 {
                     name: 'Alessandro D\'Antoni',
                     role: 'Co-Founder',
-                    bio: 'Full Stack Developer con oltre 10 anni di esperienza nel settore. Specializzato in architetture scalabili e gestione di team di sviluppo per startup innovative.',
+                    bio: 'Full Stack Developer con oltre 14 anni di esperienza nel settore. Specializzato in architetture scalabili e gestione di team di sviluppo per startup innovative.',
                     specialties: ['React', 'Node.js', 'Cloud', 'AI/ML', 'Python', 'DevOps'],
                     linkedin: 'https://www.linkedin.com/in/alessandrodantoni/',
                     image: '/alessandro_avatar-min.webp',
