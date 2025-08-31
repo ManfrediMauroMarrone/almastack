@@ -7,6 +7,7 @@ import Logo from "./Logo";
 import { Menu, X } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import 'animate.css';
+import Link from "next/link";
 
 const Navbar = ({ translate }) => {
     const router = useRouter();
@@ -38,9 +39,9 @@ const Navbar = ({ translate }) => {
         >
             <div className="container mx-auto px-6 py-4 bg-white/80 backdrop-blur-xl">
                 <div className="flex items-center justify-between max-w-[1480px] m-auto">
-                    <a href="/">
+                    <Link href="/" replace>
                         <Logo />
-                    </a>
+                    </Link>
 
                     {/* Desktop Menu */}
                     <div className="hidden md:flex items-center gap-8">
