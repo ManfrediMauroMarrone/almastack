@@ -7,13 +7,11 @@ export const _viewport = {
 
 export const _metadata = {
     it: {
-        // Meta Tags Base
-        title: {
-            default: 'Almastack | Agenzia Web Development - Soluzioni Digitali Innovative',
-            template: '%s | Almastack'
-        },
-        description: 'Almastack è un\'agenzia di sviluppo web specializzata in soluzioni Full Stack, AI Integration, E-commerce e UI/UX Design.',
-        keywords: ['sviluppo web', 'web agency', 'full stack development', 'react', 'node.js', 'javascript', 'e-commerce', 'AI integration', 'UI/UX design', 'milano', 'italia', 'sviluppo app', 'siti web professionali'],
+        title: 'Almastack - Sviluppo Web e Intelligenza Artificiale',
+        description: 'Trasformiamo le tue idee in soluzioni digitali innovative. Sviluppo full-stack, integrazione AI, e-commerce.',
+        url: 'https://almastack.it',
+        siteName: 'Almastack',
+        keywords: ['sviluppo web', 'web agency', 'full stack development', 'react', 'node.js', 'javascript', 'e-commerce', 'AI integration', 'UI/UX design', 'italia', 'sviluppo app', 'siti web professionali'],
         authors: [{ name: 'Almastack', url: 'https://almastack.it' }],
         creator: 'Almastack',
         publisher: 'Almastack',
@@ -30,22 +28,30 @@ export const _metadata = {
 
         // Open Graph
         openGraph: {
-            type: 'website',
-            locale: 'it_IT',
-            alternateLocale: 'en_US',
+            title: 'Almastack - Sviluppo Web e Intelligenza Artificiale',
+            description: 'Trasformiamo le tue idee in soluzioni digitali innovative. Sviluppo full-stack, integrazione AI, e-commerce.',
             url: 'https://almastack.it',
             siteName: 'Almastack',
-            title: 'Almastack | Agenzia Web Development - Soluzioni Digitali Innovative',
-            description: 'Trasformiamo le tue idee in realtà digitali. Sviluppo Full Stack, AI Integration, E-commerce e UI/UX Design professionale.',
             images: [
                 {
-                    url: '/header-v2-min.webp',
+                    url: 'https://almastack.it/header-v2-min.png', // 1200x630px consigliati
+                    width: 662,
+                    height: 500,
+                    alt: 'Almastack - Web Development & AI Solutions',
+                }
+            ],
+            locale: 'it_IT',
+            type: 'website',
+            alternateLocale: 'en_US',
+            images: [
+                {
+                    url: '/header-v2-min.png',
                     width: 1200,
                     height: 630,
                     alt: 'Almastack - Web Development Agency',
                 },
                 {
-                    url: '/header-v2-min.webp',
+                    url: '/header-v2-min.png',
                     width: 600,
                     height: 600,
                     alt: 'Almastack Logo',
@@ -56,11 +62,11 @@ export const _metadata = {
         // Twitter Card
         twitter: {
             card: 'summary_large_image',
-            title: 'Almastack | Agenzia Web Development',
-            description: 'Trasformiamo le tue idee in realtà digitali. Sviluppo Full Stack, AI Integration, E-commerce professionale.',
+            title: 'Almastack - Sviluppo Web e Soluzioni AI',
+            description: 'Agenzia specializzata in sviluppo web, AI e soluzioni digitali innovative',
+            images: ['https://almastack.it/header-v2-min.png'],
             site: '@almastack',
             creator: '@almastack',
-            images: ['/header-v2-min.webp'],
         },
 
         // Robots & Verification
@@ -132,13 +138,11 @@ export const _metadata = {
         },
     },
     en: {
-        // Meta Tags Base
-        title: {
-            default: 'Almastack | Web Development Agency - Innovative Digital Solutions',
-            template: '%s | Almastack'
-        },
-        description: 'Almastack is a web development agency specialized in Full Stack solutions, AI Integration, E-commerce and UI/UX Design.',
-        keywords: ['web development', 'web agency', 'full stack development', 'react', 'node.js', 'javascript', 'e-commerce', 'AI integration', 'UI/UX design', 'milan', 'italy', 'app development', 'professional websites'],
+        title: 'Almastack - Web Development and Artificial Intelligence',
+        description: 'We transform your ideas into innovative digital solutions. Full-stack development, AI integration, e-commerce.',
+        url: 'https://almastack.it',
+        siteName: 'Almastack',
+        keywords: ['web development', 'web agency', 'full stack development', 'react', 'node.js', 'javascript', 'e-commerce', 'AI integration', 'UI/UX design', 'italy', 'app development', 'professional websites'],
         authors: [{ name: 'Almastack', url: 'https://almastack.it' }],
         creator: 'Almastack',
         publisher: 'Almastack',
@@ -155,22 +159,30 @@ export const _metadata = {
 
         // Open Graph
         openGraph: {
-            type: 'website',
-            locale: 'en_US',
-            alternateLocale: 'it_IT',
+            title: 'Almastack - Web Development and Artificial Intelligence',
+            description: 'We transform your ideas into innovative digital solutions. Full-stack development, AI integration, e-commerce.',
             url: 'https://almastack.it',
             siteName: 'Almastack',
-            title: 'Almastack | Web Development Agency - Innovative Digital Solutions',
-            description: 'We transform your ideas into digital realities. Full Stack Development, AI Integration, E-commerce and professional UI/UX Design.',
             images: [
                 {
-                    url: '/header-v2-min.webp',
+                    url: 'https://almastack.it/header-v2-min.png', // 1200x630px recommended
+                    width: 662,
+                    height: 500,
+                    alt: 'Almastack - Web Development & AI Solutions',
+                }
+            ],
+            locale: 'en_US',
+            type: 'website',
+            alternateLocale: 'it_IT',
+            images: [
+                {
+                    url: '/header-v2-min.png',
                     width: 1200,
                     height: 630,
                     alt: 'Almastack - Web Development Agency',
                 },
                 {
-                    url: '/header-v2-min.webp',
+                    url: '/header-v2-min.png',
                     width: 600,
                     height: 600,
                     alt: 'Almastack Logo',
@@ -181,11 +193,11 @@ export const _metadata = {
         // Twitter Card
         twitter: {
             card: 'summary_large_image',
-            title: 'Almastack | Web Development Agency',
-            description: 'We transform your ideas into digital realities. Full Stack Development, AI Integration, professional E-commerce.',
+            title: 'Almastack - Web Development and AI Solutions',
+            description: 'Agency specialized in web development, AI and innovative digital solutions',
+            images: ['https://almastack.it/header-v2-min.png'],
             site: '@almastack',
             creator: '@almastack',
-            images: ['/header-v2-min.webp'],
         },
 
         // Robots & Verification
@@ -372,7 +384,7 @@ export const jsonLdWebSite = {
 };
 
 export const jsonLdService = {
-    it : {
+    it: {
         '@context': 'https://schema.org',
         '@type': 'Service',
         serviceType: 'Web Development',
