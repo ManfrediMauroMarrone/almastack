@@ -34,8 +34,7 @@ const Navbar = ({ translate }) => {
 
     return (
         <nav
-            className={`fixed top-0 w-full z-50 transition-all duration-300 animate__animated animate__fadeInDown ${scrolled ? 'shadow-lg' : ''
-                }`}
+            className={`fixed backdrop-blur-lg top-0 w-full z-50 transition-all duration-300 animate__animated animate__fadeInDown ${scrolled ? 'shadow-lg' : ''}`}
         >
             <div className="container mx-auto px-6 py-4 bg-white/80 backdrop-blur-xl">
                 <div className="flex items-center justify-between max-w-[1480px] m-auto">
@@ -79,23 +78,25 @@ const Navbar = ({ translate }) => {
             {/* Mobile Menu */}
             {isOpen && (
                 <div
-                    className={`md:hidden fixed top-[72px] right-0 w-full h-full bg-white/95 backdrop-blur-xl animate__animated ${
+                    className={`md:hidden fixed top-[72px] right-0 w-full h-full bg-white backdrop-blur-xl animate__animated ${
                         isOpen ? 'animate__slideInRight' : 'animate__slideOutRight'
                     }`}
                 >
-                    <div className="p-6">
-                        {navItems.map((item) => (
-                            <a
-                                key={item}
-                                href={`#${item.toLowerCase().replace(' ', '-')}`}
-                                onClick={() => setIsOpen(false)}
-                                className={`block py-4 hover:text-indigo-600 transition-colors font-medium text-lg ${
-                                    hash === item.toLowerCase().replace(' ', '-') ? 'text-indigo-600' : 'text-gray-700'
-                                }`}
-                            >
-                                {item}
-                            </a>
-                        ))}
+                    <div className="p-6 bg-white h-[calc(100vh-72px)] flex flex-col">
+                        <div className="flex-grow">
+                            {navItems.map((item) => (
+                                <a
+                                    key={item}
+                                    href={`#${item.toLowerCase().replace(' ', '-')}`}
+                                    onClick={() => setIsOpen(false)}
+                                    className={`block py-4 hover:text-indigo-600 transition-colors font-medium text-lg ${
+                                        hash === item.toLowerCase().replace(' ', '-') ? 'text-indigo-600' : 'text-gray-700'
+                                    }`}
+                                >
+                                    {item}
+                                </a>
+                            ))}
+                        </div>
                         <div className="mt-6 pt-6 border-t border-gray-200">
                             <select 
                                 value={language} 

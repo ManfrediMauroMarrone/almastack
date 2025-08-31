@@ -6,6 +6,63 @@ import { ArrowDownRight } from "./ArrowRightIcon";
 import { useAnimateOnScroll } from "../hooks/useAnimateOnScroll";
 import 'animate.css';
 
+// Separate component for animated pricing card
+const PricingCard = ({ plan, index, translate, setUrlHash }) => {
+    const { ref, animateClass, style } = useAnimateOnScroll('fadeInUp', index * 100);
+    
+    return (
+        <div
+            ref={ref}
+            style={style}
+            className={`relative rounded-2xl p-8 ${animateClass} ${plan.popular
+                ? 'bg-gradient-to-br from-blue-600 to-purple-600 text-white shadow-2xl scale-105'
+                : 'bg-gray-50 shadow-xl'
+            }`}
+        >
+            {plan.popular && (
+                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                    <span className="bg-yellow-400 text-black px-4 py-1 rounded-full text-sm font-semibold">
+                        {translate.pricing.popular}
+                    </span>
+                </div>
+            )}
+
+            <h3 className="text-2xl font-bold mb-2">{plan.name}</h3>
+            <div className="text-4xl font-bold mb-4 flex gap-2 relative">
+                <span className="absolute top-2 left-1">
+                    <ArrowDownRight size={18} className="text-gray-300" />
+                </span>
+                <sup className="text-sm">{plan.from}</sup> {plan.price}
+            </div>
+            <p className={`mb-6 ${plan.popular ? 'text-white/90' : 'text-gray-600'}`}>
+                {plan.description}
+            </p>
+
+            <ul className="space-y-3 mb-8">
+                {plan.features.map((feature, i) => (
+                    <li key={i} className="flex items-center">
+                        <Check className={`w-5 h-5 mr-3 flex-shrink-0 ${plan.popular ? 'text-white' : 'text-purple-600'
+                            }`} />
+                        <span className={plan.popular ? 'text-white/90' : 'text-gray-600'}>
+                            {feature}
+                        </span>
+                    </li>
+                ))}
+            </ul>
+
+            <button
+                onClick={() => setUrlHash(translate.nav.contact.toLowerCase().replace(' ', '-'))}
+                className={`w-full py-3 rounded-full font-semibold transition-all hover:scale-105 active:scale-95 ${plan.popular
+                    ? 'bg-white text-blue-600 hover:bg-gray-100'
+                    : 'bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:shadow-lg'
+                    }`}
+            >
+                {translate.pricing.startNow}
+            </button>
+        </div>
+    );
+};
+
 const PricingSection = ({ translate }) => {
     const id = translate.nav.pricing.toLowerCase().replace(' ', '-');
     
@@ -62,61 +119,15 @@ const PricingSection = ({ translate }) => {
                 </div>
 
                 <div className="grid md:grid-cols-3 gap-8">
-                    {plans.map((plan, index) => {
-                        const { ref: planRef, animateClass: planAnimation, style: planStyle } = useAnimateOnScroll('fadeInUp', index * 100);
-                        return (
-                            <div
-                                key={index}
-                                ref={planRef}
-                                style={planStyle}
-                                className={`relative rounded-2xl p-8 ${planAnimation} ${plan.popular
-                                    ? 'bg-gradient-to-br from-blue-600 to-purple-600 text-white shadow-2xl scale-105'
-                                    : 'bg-gray-50 shadow-xl'
-                                }`}
-                            >
-                                {plan.popular && (
-                                    <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                                        <span className="bg-yellow-400 text-black px-4 py-1 rounded-full text-sm font-semibold">
-                                            {translate.pricing.popular}
-                                        </span>
-                                    </div>
-                                )}
-
-                                <h3 className="text-2xl font-bold mb-2">{plan.name}</h3>
-                                <div className="text-4xl font-bold mb-4 flex gap-2 relative">
-                                    <span className="absolute top-2 left-1">
-                                        <ArrowDownRight size={18} className="text-gray-300" />
-                                    </span>
-                                    <sup className="text-sm">{plan.from}</sup> {plan.price}
-                                </div>
-                                <p className={`mb-6 ${plan.popular ? 'text-white/90' : 'text-gray-600'}`}>
-                                    {plan.description}
-                                </p>
-
-                                <ul className="space-y-3 mb-8">
-                                    {plan.features.map((feature, i) => (
-                                        <li key={i} className="flex items-center">
-                                            <Check className={`w-5 h-5 mr-3 flex-shrink-0 ${plan.popular ? 'text-white' : 'text-purple-600'
-                                                }`} />
-                                            <span className={plan.popular ? 'text-white/90' : 'text-gray-600'}>
-                                                {feature}
-                                            </span>
-                                        </li>
-                                    ))}
-                                </ul>
-
-                                <button
-                                    onClick={() => setUrlHash(translate.nav.contact.toLowerCase().replace(' ', '-'))}
-                                    className={`w-full py-3 rounded-full font-semibold transition-all hover:scale-105 active:scale-95 ${plan.popular
-                                        ? 'bg-white text-blue-600 hover:bg-gray-100'
-                                        : 'bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:shadow-lg'
-                                        }`}
-                                >
-                                    {translate.pricing.startNow}
-                                </button>
-                            </div>
-                        );
-                    })}
+                    {plans.map((plan, index) => (
+                        <PricingCard 
+                            key={index}
+                            plan={plan}
+                            index={index}
+                            translate={translate}
+                            setUrlHash={setUrlHash}
+                        />
+                    ))}
                 </div>
 
                 <div

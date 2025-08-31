@@ -5,6 +5,33 @@ import { Brain, Check, Code, Layers, Palette, ShoppingCart, Users } from "lucide
 import { useAnimateOnScroll } from "../hooks/useAnimateOnScroll";
 import 'animate.css';
 
+// Separate component for animated service card
+const ServiceCard = ({ service, index }) => {
+    const { ref, animateClass, style } = useAnimateOnScroll('fadeInUp', index * 100);
+    
+    return (
+        <div
+            ref={ref}
+            style={style}
+            className={`bg-white rounded-2xl p-8 shadow-xl hover:shadow-2xl transition-all hover:-translate-y-2 ${animateClass}`}
+        >
+            <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-500 rounded-2xl flex items-center justify-center text-white mb-6">
+                {service.icon}
+            </div>
+            <h3 className="text-2xl font-bold mb-4">{service.title}</h3>
+            <p className="text-gray-600 mb-6">{service.description}</p>
+            <ul className="space-y-2">
+                {service.features.map((feature, i) => (
+                    <li key={i} className="flex items-center text-sm text-gray-600">
+                        <Check className="w-4 h-4 text-blue-600 mr-2 flex-shrink-0" />
+                        {feature}
+                    </li>
+                ))}
+            </ul>
+        </div>
+    );
+};
+
 const ServicesSection = ({ translate }) => {
     const id = translate.nav.services.toLowerCase().replace(' ', '-');
     
@@ -68,31 +95,9 @@ const ServicesSection = ({ translate }) => {
                 </div>
 
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {services.map((service, index) => {
-                        const { ref: serviceRef, animateClass: serviceAnimation, style: serviceStyle } = useAnimateOnScroll('fadeInUp', index * 100);
-                        return (
-                            <div
-                                key={index}
-                                ref={serviceRef}
-                                style={serviceStyle}
-                                className={`bg-white rounded-2xl p-8 shadow-xl hover:shadow-2xl transition-all hover:-translate-y-2 ${serviceAnimation}`}
-                            >
-                                <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-500 rounded-2xl flex items-center justify-center text-white mb-6">
-                                    {service.icon}
-                                </div>
-                                <h3 className="text-2xl font-bold mb-4">{service.title}</h3>
-                                <p className="text-gray-600 mb-6">{service.description}</p>
-                                <ul className="space-y-2">
-                                    {service.features.map((feature, i) => (
-                                        <li key={i} className="flex items-center text-sm text-gray-600">
-                                            <Check className="w-4 h-4 text-blue-600 mr-2 flex-shrink-0" />
-                                            {feature}
-                                        </li>
-                                    ))}
-                                </ul>
-                            </div>
-                        );
-                    })}
+                    {services.map((service, index) => (
+                        <ServiceCard key={index} service={service} index={index} />
+                    ))}
                 </div>
             </div>
         </section>
