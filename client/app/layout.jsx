@@ -40,10 +40,16 @@ export default function RootLayout({
                 {/* Preconnect to external domains */}
                 <link rel="preconnect" href="https://fonts.googleapis.com" />
                 <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+                <link rel="preconnect" href="//scripts.simpleanalyticscdn.com" />
 
                 {/* DNS Prefetch */}
                 <link rel="dns-prefetch" href="//fonts.googleapis.com" />
                 <link rel="dns-prefetch" href="//scripts.simpleanalyticscdn.com" />
+
+                {/* Preload */}
+                <link rel="preload" fetchpriority="high" as="image" href="/hero-v2.png" type="image/png" />
+                <link rel="preload" fetchpriority="high" as="image" href="/alessandro_avatar.jpeg" type="image/jpeg" />
+                <link rel="preload" fetchpriority="high" as="image" href="/manfredi_avatar.jpeg" type="image/jpeg" />
 
                 {/* JSON-LD Structured Data */}
                 <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdOrganization[lang] || jsonLdOrganization["it"]) }} />

@@ -1,8 +1,39 @@
 import { NextResponse } from "next/server";
 import nodemailer from 'nodemailer';
 
+const RECAPTCHA_SECRET_KEY = process.env.RECAPTCHA_SECRET_KEY;
+const RECAPTCHA_SCORE_THRESHOLD = parseFloat(process.env.RECAPTCHA_SCORE_THRESHOLD || '0.5');
+
 export async function POST(request) {
-    const { email, phone, name, service, message } = await request.json();
+    const { email, phone, name, service, message, recaptchaToken } = await request.json();
+
+    // Verifica reCAPTCHA
+    if (!recaptchaToken) {
+        return Response.json(
+            { error: 'reCAPTCHA token required' },
+            { status: 400 }
+        );
+    }
+
+    const recaptchaResponse = await fetch('https://www.google.com/recaptcha/api/siteverify', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `secret=${process.env.RECAPTCHA_SECRET_KEY}&response=${recaptchaToken}`,
+    });
+
+    const recaptchaData = await recaptchaResponse.json();
+
+    if (!recaptchaData.success || recaptchaData.score < 0.5) {
+        return Response.json(
+            { 
+                error: 'reCAPTCHA verification failed',
+                score: recaptchaData.score 
+            },
+            { status: 400 }
+        );
+    }
 
     const transporter = nodemailer.createTransport({
         service: "gmail",
@@ -38,8 +69,16 @@ export async function POST(request) {
 
     try {
         await sendMailPromise();
-        return NextResponse.json({ message: 'Email sent' });
+        return NextResponse.json(
+            { 
+                success: true,
+                message: 'Email sent successfully',
+                score: recaptchaData.score 
+            },
+            { status: 200 }
+        );
     } catch (err) {
+        console.error('API Error:', err);
         return NextResponse.json({ error: err }, { status: 500 });
     }
 }

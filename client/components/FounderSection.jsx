@@ -55,6 +55,7 @@ const FoundersSection = ({ translate }) => {
                                                 <img
                                                     src={founder.image}
                                                     alt={founder.name}
+                                                    loading="lazy"
                                                     width={144}
                                                     height={144}
                                                     className="w-full h-full object-cover"

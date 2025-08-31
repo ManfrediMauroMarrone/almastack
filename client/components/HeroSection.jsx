@@ -52,7 +52,7 @@ const HeroSection = ({ translate }) => {
                     >
                         <div className="relative w-full h-96 lg:h-[500px]">
                             {/* 3D Stack Visualization */}
-                            <img src={headerV2.src} alt="Header" width={500} height={500} className="object-cover w-full h-full" />
+                            <img src="/header-v2.png" loading="lazy" alt="Header Visualization" width={500} height={500} className="object-cover w-full h-full" />
                         </div>
                     </motion.div>
                 </div>

@@ -20,7 +20,7 @@ const Footer = ({ translate }) => {
                         <a href="#" className="hover:text-white transition-colors">{translate.footer.cookie}</a>
                     </div>
                     <div>
-                        <a className="text-xs text-gray-500" href="https://www.vecteezy.com/free-vector/server">Server Vectors by Vecteezy</a>
+                        <a className="text-xs text-gray-400" href="https://www.vecteezy.com/free-vector/server">Server Vectors by Vecteezy</a>
                     </div>
                 </div>
 
