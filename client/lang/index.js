@@ -120,7 +120,7 @@ export const translations = {
                 landing: {
                     name: 'Landing Page',
                     from: 'Da',
-                    price: '€1,500',
+                    price: '€500',
                     description: 'Landing page professionale ottimizzata per conversioni',
                     features: [
                         "Design Responsive",
@@ -134,7 +134,7 @@ export const translations = {
                 website: {
                     name: 'Website Completo',
                     from: 'Da',
-                    price: '€3,500',
+                    price: '€1.500',
                     description: 'Sito web multi-pagina completo e professionale',
                     features: [
                         "Fino a 10 Pagine",
@@ -322,7 +322,7 @@ export const translations = {
                 landing: {
                     name: 'Landing Page',
                     from: "From",
-                    price: '€1,500',
+                    price: '€500',
                     description: 'Professional landing page optimized for conversions',
                     features: [
                         "Responsive Design",
@@ -336,7 +336,7 @@ export const translations = {
                 website: {
                     name: 'Complete Website',
                     from: "From",
-                    price: '€3,500',
+                    price: '€1.500',
                     description: 'Complete professional multi-page website',
                     features: [
                         'Up to 10 Pages', 
