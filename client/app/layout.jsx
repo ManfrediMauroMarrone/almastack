@@ -47,9 +47,9 @@ export default function RootLayout({
                 <link rel="dns-prefetch" href="//scripts.simpleanalyticscdn.com" />
 
                 {/* Preload */}
-                <link rel="preload" fetchpriority="high" as="image" href="/hero-v2.png" type="image/png" />
-                <link rel="preload" fetchpriority="high" as="image" href="/alessandro_avatar.jpeg" type="image/jpeg" />
-                <link rel="preload" fetchpriority="high" as="image" href="/manfredi_avatar.jpeg" type="image/jpeg" />
+                <link rel="preload" fetchpriority="high" as="image" href="/hero-v2-min.webp" type="image/webp" />
+                <link rel="preload" fetchpriority="high" as="image" href="/alessandro_avatar-min.webp" type="image/webp" />
+                <link rel="preload" fetchpriority="high" as="image" href="/manfredi_avatar-min.webp" type="image/webp" />
 
                 {/* JSON-LD Structured Data */}
                 <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdOrganization[lang] || jsonLdOrganization["it"]) }} />

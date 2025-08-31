@@ -39,13 +39,13 @@ export const _metadata = {
             description: 'Trasformiamo le tue idee in realtà digitali. Sviluppo Full Stack, AI Integration, E-commerce e UI/UX Design professionale.',
             images: [
                 {
-                    url: '/header-v2.png',
+                    url: '/header-v2-min.webp',
                     width: 1200,
                     height: 630,
                     alt: 'Almastack - Web Development Agency',
                 },
                 {
-                    url: '/header-v2.png',
+                    url: '/header-v2-min.webp',
                     width: 600,
                     height: 600,
                     alt: 'Almastack Logo',
@@ -60,7 +60,7 @@ export const _metadata = {
             description: 'Trasformiamo le tue idee in realtà digitali. Sviluppo Full Stack, AI Integration, E-commerce professionale.',
             site: '@almastack',
             creator: '@almastack',
-            images: ['/header-v2.png'],
+            images: ['/header-v2-min.webp'],
         },
 
         // Robots & Verification
@@ -164,13 +164,13 @@ export const _metadata = {
             description: 'We transform your ideas into digital realities. Full Stack Development, AI Integration, E-commerce and professional UI/UX Design.',
             images: [
                 {
-                    url: '/header-v2.png',
+                    url: '/header-v2-min.webp',
                     width: 1200,
                     height: 630,
                     alt: 'Almastack - Web Development Agency',
                 },
                 {
-                    url: '/header-v2.png',
+                    url: '/header-v2-min.webp',
                     width: 600,
                     height: 600,
                     alt: 'Almastack Logo',
@@ -185,7 +185,7 @@ export const _metadata = {
             description: 'We transform your ideas into digital realities. Full Stack Development, AI Integration, professional E-commerce.',
             site: '@almastack',
             creator: '@almastack',
-            images: ['/header-v2.png'],
+            images: ['/header-v2-min.webp'],
         },
 
         // Robots & Verification
