@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Linkedin, Quote, Star } from 'lucide-react';
 import FloatingBlocks from './FloatingBlocks';
 import { useAnimateOnScroll } from "../hooks/useAnimateOnScroll";
+import Image from 'next/image';
 import 'animate.css';
 
 // Separate component for animated founder card
@@ -22,7 +23,7 @@ const FounderCard = ({ founder, index, translate, hoveredFounder, setHoveredFoun
                     <div className="flex-shrink-0">
                         <div className="relative">
                             <div className="w-32 h-32 lg:w-36 lg:h-36 rounded-2xl overflow-hidden shadow-lg">
-                                <img
+                                <Image
                                     src={founder.image}
                                     alt={founder.name}
                                     loading="lazy"

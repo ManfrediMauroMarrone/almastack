@@ -1,5 +1,6 @@
 'use client';
 
+import Image from "next/image";
 import { ChevronRight } from "lucide-react";
 import 'animate.css';
 
@@ -37,7 +38,7 @@ const HeroSection = ({ translate }) => {
                     <div className="relative lg:block hidden animate__animated animate__fadeIn">
                         <div className="relative w-full h-96 lg:h-[500px]">
                             {/* 3D Stack Visualization */}
-                            <img src="/header-v2-min.webp" loading="lazy" alt="Header Visualization" width={500} height={500} className="object-cover w-full h-full" />
+                            <Image src="/header-v2-min.webp" loading="lazy" alt="Header Visualization" width={500} height={500} className="object-cover w-full h-full" />
                         </div>
                     </div>
                 </div>
