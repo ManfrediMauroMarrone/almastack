@@ -144,7 +144,7 @@ const ContactSection = ({ translate }) => {
             )}
 
             <section id={id} className="py-20 bg-gradient-to-br from-white-50 via-white to-blue-50 relative">
-                <FloatingBlocks position="right" />
+                <FloatingBlocks position="left" />
 
                 <div className="container mx-auto px-6 max-w-[1480px] m-auto">
                     <div
