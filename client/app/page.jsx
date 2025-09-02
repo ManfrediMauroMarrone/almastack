@@ -27,7 +27,7 @@ const App = () => {
             <AboutSection translate={translate} />
             <ServicesSection translate={translate} />
             <FoundersSection translate={translate} />
-            <PricingSection translate={translate} />
+            {/* <PricingSection translate={translate} /> */}
             <ContactSection translate={translate} />
             <Footer translate={translate} />
         </div>

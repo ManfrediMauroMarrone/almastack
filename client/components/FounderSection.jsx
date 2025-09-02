@@ -18,9 +18,9 @@ const FounderCard = ({ founder, index, translate, hoveredFounder, setHoveredFoun
             onMouseLeave={() => setHoveredFounder(null)}
         >
             <div className="bg-gradient-to-br from-gray-50 to-purple-50/30 rounded-2xl p-8 shadow-xl transition-all duration-300 hover:shadow-2xl">
-                <div className="flex gap-6">
+                <div className="flex lg:flex-row flex-col gap-6">
                     {/* Photo Column - Smaller */}
-                    <div className="flex-shrink-0">
+                    <div className="flex-shrink-0 flex flex-col justify-center items-center lg:items-start lg:justify-start">
                         <div className="relative">
                             <div className="w-32 h-32 lg:w-36 lg:h-36 rounded-2xl overflow-hidden shadow-lg">
                                 <Image
@@ -48,7 +48,7 @@ const FounderCard = ({ founder, index, translate, hoveredFounder, setHoveredFoun
                             href={founder.linkedin}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="mt-4 w-full flex items-center justify-center gap-2 px-4 py-2 bg-white rounded-lg shadow-md hover:shadow-lg hover:bg-gradient-to-r hover:from-[#667eea] hover:to-[#764ba2] hover:text-white transition-all duration-300 group/link hover:scale-105 active:scale-95"
+                            className="mt-4 lg:w-full w-32 flex items-center justify-center gap-2 px-4 py-2 bg-white rounded-lg shadow-md hover:shadow-lg hover:bg-gradient-to-r hover:from-[#667eea] hover:to-[#764ba2] hover:text-white transition-all duration-300 group/link hover:scale-105 active:scale-95"
                         >
                             <Linkedin className="w-4 h-4" />
                             <span className="text-sm font-medium">LinkedIn</span>
@@ -96,8 +96,10 @@ const FoundersSection = ({ translate }) => {
     const [hoveredFounder, setHoveredFounder] = useState(null);
     
     const { ref: titleRef, animateClass: titleAnimation, style: titleStyle } = useAnimateOnScroll('fadeInUp', 0);
-    const { ref: missionRef, animateClass: missionAnimation, style: missionStyle } = useAnimateOnScroll('fadeInUp', 100);
+    //const { ref: missionRef, animateClass: missionAnimation, style: missionStyle } = useAnimateOnScroll('fadeInUp', 100);
+    const { ref: enterpriseRef, animateClass: enterpriseAnimation, style: enterpriseStyle } = useAnimateOnScroll('fadeInUp', 100);
 
+    const _translate = { ...translate };
     translate = translate?.founders;
 
     return (
@@ -132,14 +134,30 @@ const FoundersSection = ({ translate }) => {
                     ))}
                 </div>
 
-                {/* Mission Statement */}
                 <div
+                    ref={enterpriseRef}
+                    style={enterpriseStyle}
+                    className={`mt-28 py-18 text-center p-8 bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl ${enterpriseAnimation}`}
+                >
+                    <h3 className="text-3xl font-bold mb-4">{_translate.pricing.enterprise.title}</h3>
+                    <p className="text-gray-600 mb-8 text-lg">
+                        {_translate.pricing.enterprise.subtitle}
+                    </p>
+                    <a
+                        href={`#${_translate.nav.contact.toLowerCase().replace(' ', '-')}`}
+                        className="inline-block px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full font-semibold hover:shadow-lg transition-all hover:scale-105 active:scale-95"
+                    >
+                        {_translate.pricing.requestQuote}
+                    </a>
+                </div>
+
+                {/* Mission Statement */}
+                {/* <div
                     ref={missionRef}
                     style={missionStyle}
                     className={`relative ${missionAnimation}`}
                 >
                     <div className="bg-gradient-to-r from-[#667eea] to-[#764ba2] rounded-2xl p-8 lg:p-10 lg:py-18 text-white relative overflow-hidden">
-                        {/* Background Pattern */}
                         <div className="absolute inset-0 opacity-10">
                             <div className="absolute top-0 left-0 w-40 h-40 bg-white rounded-full -translate-x-1/2 -translate-y-1/2" />
                             <div className="absolute bottom-0 right-0 w-60 h-60 bg-white rounded-full translate-x-1/3 translate-y-1/3" />
@@ -156,7 +174,7 @@ const FoundersSection = ({ translate }) => {
                             </p>
                         </div>
                     </div>
-                </div>
+                </div> */}
             </div>
         </section>
     );

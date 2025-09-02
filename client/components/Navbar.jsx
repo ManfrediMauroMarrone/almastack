@@ -19,7 +19,7 @@ const Navbar = ({ translate }) => {
     const hash = useHash();
     const { language, setLanguage } = useLang(searchParams.get('lang') || 'it');
 
-    const navItems = [translate.nav.about, translate.nav.services, translate.nav.founders, translate.nav.pricing, translate.nav.contact];
+    const navItems = [translate.nav.about, translate.nav.services, translate.nav.founders, /* translate.nav.pricing, */ translate.nav.contact];
 
     const handleLangChange = (e) => {
         setLanguage(e.target.value);

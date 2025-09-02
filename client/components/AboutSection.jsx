@@ -97,7 +97,7 @@ const AboutSection = ({ translate }) => {
                     </div>
 
                     {/* Value cards grid */}
-                    <div className="grid grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         {translate.about.boxes.map((value, index) => (
                             <ValueCard key={index} value={value} index={index} />
                         ))}
