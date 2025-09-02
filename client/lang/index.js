@@ -124,11 +124,11 @@ export const translations = {
                 {
                     name: 'Manfredi Mauro Marrone',
                     role: 'Co-Founder',
-                    bio: 'Senior Software Engineer e AI specialist. Ha guidato la trasformazione digitale di numerose aziende Fortune 500 con soluzioni innovative.',
+                    bio: 'Full Stack Developer con oltre 5 anni di esperienza. Ha collaborato con diverse aziende IT, sviluppando soluzioni digitali moderne ed efficaci.',
                     specialties: ['React', 'Node.js', 'Cloud', 'AI/ML', 'Python', 'DevOps'],
                     linkedin: 'https://www.linkedin.com/in/manfredi-mauro-marrone-364153196/',
                     image: '/manfredi_avatar-min.webp',
-                    stats: { experience: '7+', projects: '100+' }
+                    stats: { experience: '5+', projects: '100+' }
                 }
             ]
         },
@@ -309,11 +309,11 @@ export const translations = {
                 {
                     name: 'Manfredi Mauro Marrone',
                     role: 'Co-Founder',
-                    bio: 'Senior Full Stack Developer and AI specialist. Led digital transformation for numerous companies with innovative solutions.',
+                    bio: 'Full Stack Developer with over 5 years of industry experience. Worked with several IT companies, building modern and effective digital solutions.',
                     specialties: ['React', 'Node.js', 'Cloud', 'AI/ML', 'Python', 'DevOps'],
                     linkedin: 'https://www.linkedin.com/in/manfredi-mauro-marrone-364153196/',
                     image: '/manfredi_avatar-min.webp',
-                    stats: { experience: '7+', projects: '100+' }
+                    stats: { experience: '5+', projects: '100+' }
                 }
             ]
         },
