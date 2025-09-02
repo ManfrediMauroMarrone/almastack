@@ -35,9 +35,9 @@ const Navbar = ({ translate }) => {
 
     return (
         <nav
-            className={`fixed backdrop-blur-lg top-0 w-full z-50 transition-all duration-300 animate__animated animate__fadeInDown ${scrolled ? 'shadow-lg' : ''}`}
+            className={`fixed backdrop-blur-lg bg-white/70  top-0 w-full z-50 transition-all duration-300 animate__animated animate__fadeInDown ${scrolled ? 'shadow-lg' : ''}`}
         >
-            <div className="container mx-auto px-6 py-4 bg-white/80 backdrop-blur-xl">
+            <div className="container mx-auto px-6 py-4 backdrop-blur-xl">
                 <div className="flex items-center justify-between max-w-[1480px] m-auto">
                     <Link href="/">
                         <Logo />

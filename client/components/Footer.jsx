@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Logo from "./Logo";
-import { Mail, Phone, MapPin, Linkedin, Github, Twitter, ArrowUpRight, Code, Sparkles } from "lucide-react";
+import { Mail, Phone, MapPin, Linkedin, Github, ArrowUpRight, Code, Sparkles, Send } from "lucide-react";
 
 const Footer = ({ translate }) => {
     const currentYear = new Date().getFullYear();
@@ -116,7 +116,8 @@ const Footer = ({ translate }) => {
 
                     {/* Contact Info */}
                     <div>
-                        <h3 className="font-semibold text-white mb-4">
+                        <h3 className="font-semibold text-white mb-4 flex items-center gap-2">
+                            <Send size={16} className="text-blue-400" />
                             {translate.footer.contactInfo || "Contact Info"}
                         </h3>
                         <ul className="space-y-3">

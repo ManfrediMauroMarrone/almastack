@@ -1,3 +1,5 @@
+import { Bot, Rocket, Target, Zap } from "lucide-react";
+
 export const translations = {
     it: {
         head: {
@@ -26,13 +28,38 @@ export const translations = {
             heading: 'Innovazione e Passione',
             text1: 'Almastack nasce dalla passione per la tecnologia e l\'innovazione. Siamo specializzati nello sviluppo di soluzioni web moderne, scalabili e performanti.',
             text2: 'Il nostro approccio combina creatività tecnica e design thinking per creare prodotti digitali che non solo funzionano perfettamente, ma che ispirano e coinvolgono gli utenti.',
-            text3: 'Utilizziamo le tecnologie più moderne del panorama JavaScript - React, Node.js, Next.js - per garantire soluzioni all\'avanguardia e future-proof.',
-            stats: {
-                projects: 'Progetti Completati',
-                clients: 'Clienti Soddisfatti',
-                experience: 'Anni di Esperienza',
-                satisfaction: 'Customer Satisfaction'
-            }
+            text3: 'Utilizziamo le tecnologie più moderne del panorama Tech - React, Next.js, Node.js, Python (e molto altro) - per garantire soluzioni all\'avanguardia e future-proof.',
+            cta: 'Scopri come lavoriamo',
+            boxes: [
+                {
+                    icon: <Zap />,
+                    title: "Tecnologie Cutting-Edge",
+                    description: "React, Node.js, Next.js, Python (e molto altro) e le più moderne tecnologie per soluzioni all'avanguardia",
+                    gradient: "from-blue-50 to-cyan-50",
+                    textGradient: "bg-gradient-to-r from-blue-600 to-cyan-600"
+                },
+                {
+                    icon: <Target />,
+                    title: "Approccio Agile",
+                    description: "Metodologie agili per delivery rapidi e iterativi, con feedback continuo e risultati misurabili",
+                    gradient: "from-purple-50 to-pink-50",
+                    textGradient: "bg-gradient-to-r from-purple-600 to-pink-600"
+                },
+                {
+                    icon: <Bot />,
+                    title: "AI-Powered Solutions",
+                    description: "Integriamo intelligenza artificiale per automatizzare processi e creare esperienze innovative",
+                    gradient: "from-green-50 to-emerald-50",
+                    textGradient: "bg-gradient-to-r from-green-600 to-emerald-600"
+                },
+                {
+                    icon: <Rocket />,
+                    title: "Performance First",
+                    description: "Ottimizzazione estrema per Core Web Vitals, SEO e user experience impeccabile",
+                    gradient: "from-orange-50 to-red-50",
+                    textGradient: "bg-gradient-to-r from-orange-600 to-red-600"
+                }
+            ],
         },
         services: {
             title1: 'I Nostri',
@@ -229,12 +256,37 @@ export const translations = {
             text1: 'Almastack was born from passion for technology and innovation. We specialize in developing modern, scalable, and high-performance web solutions.',
             text2: 'Our approach combines technical creativity and design thinking to create digital products that not only work perfectly but inspire and engage users.',
             text3: 'We use the most modern JavaScript technologies - React, Node.js, Next.js - to ensure cutting-edge and future-proof solutions.',
-            stats: {
-                projects: 'Completed Projects',
-                clients: 'Satisfied Clients',
-                experience: 'Years of Experience',
-                satisfaction: 'Customer Satisfaction'
-            }
+            cta: 'Discover how we work',
+            boxes: [
+                {
+                    icon: <Zap />,
+                    title: "Cutting-Edge Tech Stack",
+                    description: "React, Next.js, Node.js and the latest JavaScript technologies for state-of-the-art solutions",
+                    gradient: "from-blue-50 to-cyan-50",
+                    textGradient: "bg-gradient-to-r from-blue-600 to-cyan-600"
+                },
+                {
+                    icon: <Target />,
+                    title: "Agile Approach",
+                    description: "Agile methodologies for rapid, iterative delivery with continuous feedback and measurable results",
+                    gradient: "from-purple-50 to-pink-50",
+                    textGradient: "bg-gradient-to-r from-purple-600 to-pink-600"
+                },
+                {
+                    icon: <Bot />,
+                    title: "AI-Powered Solutions",
+                    description: "We integrate artificial intelligence to automate processes and create innovative experiences",
+                    gradient: "from-green-50 to-emerald-50",
+                    textGradient: "bg-gradient-to-r from-green-600 to-emerald-600"
+                },
+                {
+                    icon: <Rocket />,
+                    title: "Performance First",
+                    description: "Extreme optimization for Core Web Vitals, SEO and impeccable user experience",
+                    gradient: "from-orange-50 to-red-50",
+                    textGradient: "bg-gradient-to-r from-orange-600 to-red-600"
+                }
+            ],
         },
         founders: {
             title1: 'Inside',
@@ -339,11 +391,11 @@ export const translations = {
                     price: '€1.500',
                     description: 'Complete professional multi-page website',
                     features: [
-                        'Up to 10 Pages', 
-                        'CMS Integration', 
-                        'Blog System', 
-                        'Multi-language', 
-                        'Professional Email', 
+                        'Up to 10 Pages',
+                        'CMS Integration',
+                        'Blog System',
+                        'Multi-language',
+                        'Professional Email',
                         '6 Months Support'
                     ]
                 },
