@@ -21,6 +21,7 @@ import {
     Camera,
     TrendingUp
 } from 'lucide-react';
+import Image from 'next/image';
 
 export default function AuthorsManager() {
     const [authors, setAuthors] = useState([]);
@@ -366,10 +367,12 @@ export default function AuthorsManager() {
                                         <div className="flex items-center gap-4">
                                             <div className="w-16 h-16 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden">
                                                 {author.avatar ? (
-                                                    <img
+                                                    <Image
                                                         src={`/images/authors/${author.avatar}`}
                                                         alt={author.name}
                                                         className="w-full h-full object-cover"
+                                                        width={64}
+                                                        height={64}
                                                     />
                                                 ) : (
                                                     <div className="w-full h-full flex items-center justify-center">

@@ -23,6 +23,7 @@ import {
     Calendar,
     HardDrive
 } from 'lucide-react';
+import Image from 'next/image';
 
 export default function MediaManager() {
     const [mediaFiles, setMediaFiles] = useState([]);
@@ -367,10 +368,12 @@ export default function MediaManager() {
 
                                     {/* Image */}
                                     <div className="aspect-square bg-gray-100 dark:bg-gray-800">
-                                        <img
+                                        <Image
                                             src={file.url}
                                             alt={file.alt_text || file.original_name}
                                             className="w-full h-full object-cover"
+                                            width={400}
+                                            height={400}
                                         />
                                     </div>
 
@@ -468,10 +471,12 @@ export default function MediaManager() {
                                                 />
                                             </td>
                                             <td className="px-4 py-3">
-                                                <img
+                                                <Image
                                                     src={file.url}
                                                     alt={file.alt_text || ''}
                                                     className="w-12 h-12 object-cover rounded"
+                                                    width={400}
+                                                    height={400}
                                                 />
                                             </td>
                                             <td className="px-4 py-3">
@@ -592,10 +597,12 @@ export default function MediaManager() {
 
                         {/* Preview */}
                         <div className="mb-6">
-                            <img
+                            <Image
                                 src={selectedFile.url}
                                 alt={selectedFile.alt_text || selectedFile.original_name}
                                 className="w-full rounded-lg"
+                                width={400}
+                                height={400}
                             />
                         </div>
 

@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import MediaPicker from '../../../../components/admin/MediaPicker';
 import PostPreview from '../../../../components/admin/PostPreview';
+import NextImage from 'next/image';
 import {
     Bold,
     Italic,
@@ -665,6 +666,13 @@ export default function AdvancedPostEditor() {
                                 <Image className="w-4 h-4 inline mr-1" />
                                 Immagine di copertina
                             </label>
+                            {
+                                post.coverImage && (
+                                    <div>
+                                        <NextImage src={post.coverImage} width={800} height={400} alt="Cover" className="w-full h-40 object-cover rounded-lg mb-2" />
+                                    </div>
+                                )
+                            }
                             <input
                                 type="text"
                                 placeholder="/images/blog/cover.jpg"

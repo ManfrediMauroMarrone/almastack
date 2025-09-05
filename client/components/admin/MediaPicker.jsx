@@ -217,10 +217,12 @@ export default function MediaPicker({ isOpen, onClose, onSelect, multiple = fals
                                         }`}
                                     >
                                         <div className="aspect-square bg-gray-100 dark:bg-gray-800">
-                                            <img
+                                            <Image
                                                 src={file.url}
                                                 alt={file.alt_text || file.original_name}
                                                 className="w-full h-full object-cover"
+                                                width={400}
+                                                height={400}
                                             />
                                         </div>
                                         {isSelected && (
@@ -248,10 +250,12 @@ export default function MediaPicker({ isOpen, onClose, onSelect, multiple = fals
                                         }`}
                                     >
                                         <div className="w-12 h-12 rounded overflow-hidden bg-gray-100 dark:bg-gray-800">
-                                            <img
+                                            <Image
                                                 src={file.url}
                                                 alt={file.alt_text || file.original_name}
                                                 className="w-full h-full object-cover"
+                                                width={400}
+                                                height={400}
                                             />
                                         </div>
                                         <div className="flex-1">

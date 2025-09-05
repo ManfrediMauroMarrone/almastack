@@ -3,6 +3,7 @@ import BlogLayout from '../../components/blog/BlogLayout';
 import PostCard from '../../components/blog/PostCard';
 import { Search, SlidersHorizontal, X } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export const metadata = {
     title: 'Blog - Almastack',
@@ -197,12 +198,12 @@ export default async function BlogPage({ searchParams }) {
                             </span>
                         ))}
                         {(selectedCategories.length > 0 || selectedTags.length > 0 || searchParams.search) && (
-                            <a 
+                            <Link 
                                 href="/blog" 
                                 className="text-sm text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 ml-2 underline"
                             >
                                 Rimuovi tutti i filtri
-                            </a>
+                            </Link>
                         )}
                     </div>
 
@@ -332,10 +333,12 @@ export default async function BlogPage({ searchParams }) {
                                         {/* Image section */}
                                         <div className="relative h-64 md:h-full min-h-[350px] bg-gray-100 dark:bg-gray-800">
                                             {featuredPosts[0].coverImage ? (
-                                                <img 
+                                                <Image
                                                     src={featuredPosts[0].coverImage} 
                                                     alt={featuredPosts[0].title}
                                                     className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                                                    width={400}
+                                                    height={400}
                                                 />
                                             ) : (
                                                 <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-pink-500 opacity-80">
@@ -530,12 +533,12 @@ export default async function BlogPage({ searchParams }) {
                                 <p className="text-gray-500 dark:text-gray-400 mb-6">
                                     Prova a modificare i criteri di ricerca o rimuovi alcuni filtri
                                 </p>
-                                <a
+                                <Link
                                     href="/blog"
                                     className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-medium rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all duration-300"
                                 >
                                     Torna al Blog
-                                </a>
+                                </Link>
                             </div>
                         )}
                     </main>

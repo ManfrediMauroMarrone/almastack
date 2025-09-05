@@ -3,6 +3,7 @@
 
 import { useMemo } from 'react';
 import { Calendar, Clock, User, Tag, FolderOpen } from 'lucide-react';
+import Image from 'next/image';
 
 // Simple markdown to HTML converter for preview
 const renderMarkdown = (content) => {
@@ -133,10 +134,12 @@ export default function PostPreview({ post }) {
                 <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
                     <div className="flex items-center gap-2">
                         {post.authorImage && (
-                            <img 
+                            <Image 
                                 src={post.authorImage} 
                                 alt={post.author}
                                 className="w-8 h-8 rounded-full"
+                                width={32}
+                                height={32}
                             />
                         )}
                         <span className="font-medium">{post.author || 'Autore'}</span>
@@ -176,10 +179,12 @@ export default function PostPreview({ post }) {
             {/* Cover Image */}
             {post.coverImage && (
                 <div className="px-8 pt-8">
-                    <img 
+                    <Image 
                         src={post.coverImage} 
                         alt={post.title}
                         className="w-full rounded-lg shadow-lg"
+                        width={800}
+                        height={400}
                     />
                 </div>
             )}
