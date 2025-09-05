@@ -12,10 +12,6 @@ export default function AdminDashboard() {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
 
-    useEffect(() => {
-        checkAuth();
-    }, []);
-
     const checkAuth = async () => {
         try {
             const res = await fetch('/api/admin/auth/check');
@@ -35,6 +31,10 @@ export default function AdminDashboard() {
         await fetch('/api/admin/auth/logout', { method: 'POST' });
         router.push('/admin/login');
     };
+
+    useEffect(() => {
+        checkAuth();
+    }, []);
 
     if (isLoading) {
         return (

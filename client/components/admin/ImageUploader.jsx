@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { useState } from 'react';
 
 export default function ImageUploader({
@@ -69,9 +70,13 @@ export default function ImageUploader({
 
                 {coverImage ? (
                     <div className="relative rounded-lg overflow-hidden">
-                        <img
+                        <Image
                             src={coverImage}
                             alt="Cover"
+                            layout="fill"
+                            objectFit="cover"
+                            width={500}
+                            height={300}
                             className="w-full h-48 object-cover"
                         />
                         <button
@@ -94,7 +99,7 @@ export default function ImageUploader({
                         </svg>
 
                         <p className="text-gray-600 dark:text-gray-400 mb-4">
-                            Trascina un'immagine qui o
+                            Trascina un&apos;immagine qui o
                         </p>
 
                         <label className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg cursor-pointer inline-block transition-colors">
@@ -143,10 +148,14 @@ export default function ImageUploader({
                             className="relative group rounded-lg overflow-hidden cursor-pointer hover:ring-2 hover:ring-blue-500"
                             onClick={() => onImageInsert(url)}
                         >
-                            <img
+                            <Image
                                 src={url}
                                 alt=""
                                 className="w-full h-24 object-cover"
+                                layout="fill"
+                                objectFit="cover"
+                                width={500}
+                                height={300}
                             />
                             <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-opacity flex items-center justify-center">
                                 <span className="text-white opacity-0 group-hover:opacity-100 text-xs">

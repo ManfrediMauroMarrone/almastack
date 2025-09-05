@@ -88,7 +88,7 @@ export default function ModernSearchBar({ initialValue = '' }) {
             {isFocused && query.length > 0 && (
                 <div className="absolute top-full mt-2 w-full p-2 bg-white dark:bg-gray-900 rounded-xl shadow-xl border border-gray-200 dark:border-gray-800 z-50">
                     <p className="text-sm text-gray-500 dark:text-gray-400 px-3 py-2">
-                        Premi Enter per cercare "{query}"
+                        Premi Enter per cercare &quot;{query}&quot;
                     </p>
                 </div>
             )}

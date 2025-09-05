@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { useMemo } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -15,10 +16,13 @@ export default function PreviewPanel({ post }) {
         <div className="p-6">
             {/* Cover Image */}
             {post.coverImage && (
-                <img
+                <Image
                     src={post.coverImage}
                     alt={post.title}
                     className="w-full h-64 object-cover rounded-lg mb-6"
+                    layout="responsive"
+                    width={500}
+                    height={300}
                 />
             )}
 

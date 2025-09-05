@@ -12,14 +12,6 @@ export default function PostsListPage() {
     const [searchQuery, setSearchQuery] = useState('');
     const [filterStatus, setFilterStatus] = useState('all');
 
-    useEffect(() => {
-        loadPosts();
-    }, []);
-
-    useEffect(() => {
-        filterPosts();
-    }, [posts, searchQuery, filterStatus]);
-
     const loadPosts = async () => {
         try {
             const res = await fetch('/api/admin/posts');
@@ -75,6 +67,14 @@ export default function PostsListPage() {
             alert('Errore nell\'eliminare l\'articolo');
         }
     };
+
+    useEffect(() => {
+        loadPosts();
+    }, []);
+
+    useEffect(() => {
+        filterPosts();
+    }, [posts, searchQuery, filterStatus]);
 
     if (isLoading) {
         return (

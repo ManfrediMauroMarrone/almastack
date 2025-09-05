@@ -113,7 +113,7 @@ export default function MarkdownEditor({
                     <div>[link](url) | ![image](url)</div>
                     <div>&gt; blockquote | - list | 1. numbered</div>
                     <div>```language code block ```</div>
-                    <div>&lt;Note type="info|warning|danger|success"&gt;content&lt;/Note&gt;</div>
+                    <div>&lt;Note type=&quot;info|warning|danger|success&quot;&gt;content&lt;/Note&gt;</div>
                 </div>
             </details>
         </div>

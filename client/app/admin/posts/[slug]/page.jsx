@@ -34,26 +34,6 @@ export default function PostEditor() {
     const [activeTab, setActiveTab] = useState('editor');
     const [hasChanges, setHasChanges] = useState(false);
 
-    // Load existing post if editing
-    useEffect(() => {
-        if (!isNew && params.slug) {
-            loadPost(params.slug);
-        }
-    }, [params.slug, isNew]);
-
-    // Warn before leaving with unsaved changes
-    useEffect(() => {
-        const handleBeforeUnload = (e) => {
-            if (hasChanges) {
-                e.preventDefault();
-                e.returnValue = '';
-            }
-        };
-
-        window.addEventListener('beforeunload', handleBeforeUnload);
-        return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-    }, [hasChanges]);
-
     const loadPost = async (slug) => {
         try {
             const res = await fetch(`/api/admin/posts/${slug}`);
@@ -147,6 +127,26 @@ export default function PostEditor() {
             .replace(/[^a-z0-9]+/g, '-')
             .replace(/^-+|-+$/g, '');
     };
+
+    // Load existing post if editing
+    useEffect(() => {
+        if (!isNew && params.slug) {
+            loadPost(params.slug);
+        }
+    }, [params.slug, isNew]);
+
+    // Warn before leaving with unsaved changes
+    useEffect(() => {
+        const handleBeforeUnload = (e) => {
+            if (hasChanges) {
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        };
+
+        window.addEventListener('beforeunload', handleBeforeUnload);
+        return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+    }, [hasChanges]);
 
     if (isLoading) {
         return (

@@ -5,6 +5,7 @@ import SearchBar from '../../components/blog/SearchBar';
 import CategoryFilter from '../../components/blog/CategoryFilter';
 import TagCloud from '../../components/blog/TagCloud';
 import { LetterText, MessageSquare } from 'lucide-react';
+import Link from 'next/link';
 
 export const metadata = {
     title: 'Blog - AlmaStack',
@@ -193,12 +194,12 @@ export default async function BlogPage({ searchParams }) {
                                             </span>
                                         )}
                                     </div>
-                                    <a
+                                    <Link
                                         href="/blog"
                                         className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium transition-colors"
                                     >
                                         ✕ Rimuovi filtri
-                                    </a>
+                                    </Link>
                                 </div>
                             </div>
                         )}
