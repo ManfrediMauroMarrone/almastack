@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { searchPostsAdvanced } from '@/lib/search';
+import { searchPostsAdvanced } from '../../../lib/search';
 
 export async function GET(request) {
     const searchParams = request.nextUrl.searchParams;
