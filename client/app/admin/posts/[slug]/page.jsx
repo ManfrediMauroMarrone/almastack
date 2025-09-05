@@ -1,38 +1,129 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
-import { useParams } from 'next/navigation';
-import MarkdownEditor from '../../../../components/admin/MarkdownEditor';
-import MetadataForm from '../../../../components/admin/MetadataForm';
-import ImageUploader from '../../../../components/admin/ImageUploader';
-import PreviewPanel from '../../../../components/admin/PreviewPanel';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { useParams, useRouter } from 'next/navigation';
+import Link from 'next/link';
+import MediaPicker from '../../../../components/admin/MediaPicker';
+import PostPreview from '../../../../components/admin/PostPreview';
+import {
+    Bold,
+    Italic,
+    Underline,
+    Code,
+    List,
+    ListOrdered,
+    Link2,
+    Image,
+    Quote,
+    Heading1,
+    Heading2,
+    Heading3,
+    Table,
+    Minus,
+    AlertCircle,
+    CheckCircle,
+    AlertTriangle,
+    XCircle,
+    Lightbulb,
+    Youtube,
+    Eye,
+    Save,
+    ArrowLeft,
+    Upload,
+    Calendar,
+    User,
+    Tag,
+    FolderOpen,
+    FileText,
+    Settings,
+    Trash2,
+    Plus,
+    X,
+    ChevronDown
+} from 'lucide-react';
 
-export default function PostEditor() {
-    const router = useRouter();
+// MDX Component Templates
+const MDX_COMPONENTS = {
+    note: {
+        info: '<Note type="info">\n  Your content here\n</Note>',
+        warning: '<Note type="warning">\n  Your content here\n</Note>',
+        danger: '<Note type="danger">\n  Your content here\n</Note>',
+        success: '<Note type="success">\n  Your content here\n</Note>',
+        tip: '<Note type="tip">\n  Your content here\n</Note>'
+    },
+    video: '<VideoEmbed src="https://youtube.com/watch?v=VIDEO_ID" title="Video Title" />',
+    codeBlock: '```javascript\n// Your code here\n```',
+    table: '| Header 1 | Header 2 | Header 3 |\n|----------|----------|----------|\n| Cell 1   | Cell 2   | Cell 3   |',
+    quote: '> Your quote here\n> — Author',
+    image: '![Alt text](/images/blog/your-image.jpg)'
+};
+
+export default function AdvancedPostEditor() {
     const params = useParams();
-    const isNew = params.slug === 'new';
+    const router = useRouter();
+    const isNew = params?.slug === 'new';
 
+    const [showMediaPicker, setShowMediaPicker] = useState(false);
+    const [mediaTarget, setMediaTarget] = useState('content');
     const [post, setPost] = useState({
         slug: '',
         title: '',
         content: '',
         excerpt: '',
         date: new Date().toISOString().split('T')[0],
-        author: 'Team AlmaStack',
-        authorImage: '/images/authors/team.jpg',
+        author: 'Alessandro D\'Antoni',
+        authorImage: '/images/authors/alessandro_avatar-min.webp',
         coverImage: '',
-        category: 'Uncategorized',
+        category: '',
         tags: [],
         draft: true,
-        featured: false,
+        featured: false
     });
 
+    const [authors, setAuthors] = useState([]);
+    const [categories, setCategories] = useState([]);
+    const [allTags, setAllTags] = useState([]);
     const [isLoading, setIsLoading] = useState(!isNew);
     const [isSaving, setIsSaving] = useState(false);
     const [showPreview, setShowPreview] = useState(false);
-    const [activeTab, setActiveTab] = useState('editor');
     const [hasChanges, setHasChanges] = useState(false);
+    const [tagInput, setTagInput] = useState('');
+    const [showTagSuggestions, setShowTagSuggestions] = useState(false);
+    const [showNewCategoryModal, setShowNewCategoryModal] = useState(false);
+    const [newCategory, setNewCategory] = useState({ name: '', color: '#3B82F6', icon: '📁' });
+    const [selectedText, setSelectedText] = useState('');
+    const [cursorPosition, setCursorPosition] = useState(0);
+
+    const contentRef = useRef(null);
+
+    // Load initial data
+    useEffect(() => {
+        loadInitialData();
+        if (!isNew && params?.slug) {
+            loadPost(params.slug);
+        }
+    }, [isNew, params?.slug]);
+
+    const loadInitialData = async () => {
+        try {
+            // Load authors
+            const authorsRes = await fetch('/api/admin/authors');
+            const authorsData = await authorsRes.json();
+            setAuthors(authorsData);
+
+            // Load categories
+            const categoriesRes = await fetch('/api/admin/categories');
+            const categoriesData = await categoriesRes.json();
+            setCategories(categoriesData);
+
+            // Load tags
+            const tagsRes = await fetch('/api/admin/tags');
+            const tagsData = await tagsRes.json();
+            setAllTags(tagsData);
+        } catch (error) {
+            console.error('Error loading initial data:', error);
+        }
+    };
 
     const loadPost = async (slug) => {
         try {
@@ -74,15 +165,8 @@ export default function PostEditor() {
             if (res.ok) {
                 const data = await res.json();
                 setHasChanges(false);
+                showNotification('Articolo salvato con successo!', 'success');
 
-                // Show success message
-                const message = document.createElement('div');
-                message.className = 'fixed bottom-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
-                message.textContent = 'Articolo salvato con successo!';
-                document.body.appendChild(message);
-                setTimeout(() => message.remove(), 3000);
-
-                // Redirect to the new slug if it changed
                 if (isNew || post.slug !== params.slug) {
                     router.push(`/admin/posts/${data.slug}`);
                 }
@@ -91,28 +175,9 @@ export default function PostEditor() {
             }
         } catch (error) {
             console.error('Error saving post:', error);
-            alert('Errore nel salvare l\'articolo');
+            showNotification('Errore nel salvare l\'articolo', 'error');
         } finally {
             setIsSaving(false);
-        }
-    };
-
-    const handleDelete = async () => {
-        if (!confirm('Sei sicuro di voler eliminare questo articolo?')) return;
-
-        try {
-            const res = await fetch(`/api/admin/posts/${params.slug}`, {
-                method: 'DELETE',
-            });
-
-            if (res.ok) {
-                router.push('/admin/posts');
-            } else {
-                throw new Error('Failed to delete post');
-            }
-        } catch (error) {
-            console.error('Error deleting post:', error);
-            alert('Errore nell\'eliminare l\'articolo');
         }
     };
 
@@ -128,25 +193,130 @@ export default function PostEditor() {
             .replace(/^-+|-+$/g, '');
     };
 
-    // Load existing post if editing
-    useEffect(() => {
-        if (!isNew && params.slug) {
-            loadPost(params.slug);
+    const handleAuthorChange = (authorSlug) => {
+        const author = authors.find(a => a.slug === authorSlug);
+        if (author) {
+            updatePost({
+                author: author.name,
+                authorImage: `/images/authors/${author.avatar}`
+            });
         }
-    }, [params.slug, isNew]);
+    };
 
-    // Warn before leaving with unsaved changes
-    useEffect(() => {
-        const handleBeforeUnload = (e) => {
-            if (hasChanges) {
-                e.preventDefault();
-                e.returnValue = '';
+    const insertAtCursor = (text) => {
+        const textarea = contentRef.current;
+        if (!textarea) return;
+
+        const start = textarea.selectionStart;
+        const end = textarea.selectionEnd;
+        const before = post.content.substring(0, start);
+        const after = post.content.substring(end);
+
+        const newContent = before + text + after;
+        updatePost({ content: newContent });
+
+        // Reset cursor position after React re-render
+        setTimeout(() => {
+            textarea.selectionStart = start + text.length;
+            textarea.selectionEnd = start + text.length;
+            textarea.focus();
+        }, 0);
+    };
+
+    const wrapSelection = (before, after) => {
+        const textarea = contentRef.current;
+        if (!textarea) return;
+
+        const start = textarea.selectionStart;
+        const end = textarea.selectionEnd;
+        const selectedText = post.content.substring(start, end);
+        const beforeText = post.content.substring(0, start);
+        const afterText = post.content.substring(end);
+
+        const newContent = beforeText + before + selectedText + after + afterText;
+        updatePost({ content: newContent });
+
+        // Reset selection after React re-render
+        setTimeout(() => {
+            textarea.selectionStart = start + before.length;
+            textarea.selectionEnd = start + before.length + selectedText.length;
+            textarea.focus();
+        }, 0);
+    };
+
+    const addTag = (tagName) => {
+        const slug = tagName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+        if (!post.tags.includes(tagName)) {
+            updatePost({ tags: [...post.tags, tagName] });
+        }
+        setTagInput('');
+        setShowTagSuggestions(false);
+    };
+
+    const removeTag = (tagToRemove) => {
+        updatePost({ tags: post.tags.filter(tag => tag !== tagToRemove) });
+    };
+
+    const createNewCategory = async () => {
+        const slug = newCategory.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+        try {
+            const res = await fetch('/api/admin/categories', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ...newCategory, slug })
+            });
+
+            if (res.ok) {
+                const category = await res.json();
+                setCategories([...categories, category]);
+                updatePost({ category: category.name });
+                setShowNewCategoryModal(false);
+                setNewCategory({ name: '', color: '#3B82F6', icon: '📁' });
+                showNotification('Categoria creata con successo!', 'success');
             }
-        };
+        } catch (error) {
+            console.error('Error creating category:', error);
+            showNotification('Errore nel creare la categoria', 'error');
+        }
+    };
 
-        window.addEventListener('beforeunload', handleBeforeUnload);
-        return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-    }, [hasChanges]);
+    const showNotification = (message, type) => {
+        const notification = document.createElement('div');
+        notification.className = `fixed bottom-4 right-4 px-6 py-3 rounded-lg shadow-lg z-50 ${type === 'success' ? 'bg-green-500' : 'bg-red-500'
+            } text-white`;
+        notification.textContent = message;
+        document.body.appendChild(notification);
+        setTimeout(() => notification.remove(), 3000);
+    };
+
+    const toolbarButtons = [
+        { icon: Bold, action: () => wrapSelection('**', '**'), title: 'Grassetto' },
+        { icon: Italic, action: () => wrapSelection('*', '*'), title: 'Corsivo' },
+        { icon: Underline, action: () => wrapSelection('<u>', '</u>'), title: 'Sottolineato' },
+        { icon: Code, action: () => wrapSelection('`', '`'), title: 'Codice inline' },
+        { type: 'separator' },
+        { icon: Heading1, action: () => insertAtCursor('\n# '), title: 'Heading 1' },
+        { icon: Heading2, action: () => insertAtCursor('\n## '), title: 'Heading 2' },
+        { icon: Heading3, action: () => insertAtCursor('\n### '), title: 'Heading 3' },
+        { type: 'separator' },
+        { icon: List, action: () => insertAtCursor('\n- '), title: 'Lista' },
+        { icon: ListOrdered, action: () => insertAtCursor('\n1. '), title: 'Lista numerata' },
+        { icon: Quote, action: () => insertAtCursor('\n> '), title: 'Citazione' },
+        { icon: Minus, action: () => insertAtCursor('\n---\n'), title: 'Separatore' },
+        { type: 'separator' },
+        { icon: Link2, action: () => wrapSelection('[', '](https://)'), title: 'Link' },
+        { icon: Image, action: () => { setMediaTarget('content'); setShowMediaPicker(true); }, title: 'Immagine' },
+        { icon: Table, action: () => insertAtCursor(MDX_COMPONENTS.table), title: 'Tabella' },
+        { icon: Youtube, action: () => insertAtCursor(MDX_COMPONENTS.video), title: 'Video' },
+    ];
+
+    const noteButtons = [
+        { type: 'info', icon: AlertCircle, color: 'text-blue-500' },
+        { type: 'success', icon: CheckCircle, color: 'text-green-500' },
+        { type: 'warning', icon: AlertTriangle, color: 'text-yellow-500' },
+        { type: 'danger', icon: XCircle, color: 'text-red-500' },
+        { type: 'tip', icon: Lightbulb, color: 'text-purple-500' }
+    ];
 
     if (isLoading) {
         return (
@@ -160,22 +330,18 @@ export default function PostEditor() {
         <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
             {/* Header */}
             <header className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 sticky top-0 z-40">
-                <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex items-center justify-between h-16">
+                <div className="px-6 py-4">
+                    <div className="flex items-center justify-between">
                         <div className="flex items-center gap-4">
-                            <button
-                                onClick={() => router.push('/admin/posts')}
+                            <Link
+                                href="/admin/posts"
                                 className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
                             >
-                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                                </svg>
-                            </button>
-
+                                <ArrowLeft className="w-5 h-5" />
+                            </Link>
                             <h1 className="text-xl font-semibold text-gray-900 dark:text-white">
                                 {isNew ? 'Nuovo Articolo' : 'Modifica Articolo'}
                             </h1>
-
                             {hasChanges && (
                                 <span className="px-2 py-1 text-xs bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 rounded-full">
                                     Modifiche non salvate
@@ -184,60 +350,24 @@ export default function PostEditor() {
                         </div>
 
                         <div className="flex items-center gap-3">
-                            {/* Preview Toggle */}
                             <button
                                 onClick={() => setShowPreview(!showPreview)}
                                 className={`px-4 py-2 rounded-lg transition-colors flex items-center gap-2 ${showPreview
-                                        ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400'
-                                        : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
+                                    ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400'
+                                    : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400'
                                     }`}
                             >
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                </svg>
-                                <span className="hidden sm:inline">Preview</span>
+                                <Eye className="w-4 h-4" />
+                                Preview
                             </button>
 
-                            {/* Status Badge */}
-                            <div className={`px-3 py-1 rounded-full text-sm font-medium ${post.draft
-                                    ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400'
-                                    : 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
-                                }`}>
-                                {post.draft ? 'Bozza' : 'Pubblicato'}
-                            </div>
-
-                            {/* Delete Button */}
-                            {!isNew && (
-                                <button
-                                    onClick={handleDelete}
-                                    className="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
-                                >
-                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                    </svg>
-                                </button>
-                            )}
-
-                            {/* Save Button */}
                             <button
                                 onClick={handleSave}
                                 disabled={isSaving || !hasChanges}
-                                className="px-6 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg font-semibold hover:shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                                className="px-6 py-2 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 text-white rounded-lg font-medium transition-colors flex items-center gap-2"
                             >
-                                {isSaving ? (
-                                    <>
-                                        <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />
-                                        Salvataggio...
-                                    </>
-                                ) : (
-                                    <>
-                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                                        </svg>
-                                        Salva
-                                    </>
-                                )}
+                                <Save className="w-4 h-4" />
+                                {isSaving ? 'Salvataggio...' : 'Salva'}
                             </button>
                         </div>
                     </div>
@@ -245,104 +375,407 @@ export default function PostEditor() {
             </header>
 
             {/* Main Content */}
-            <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    {/* Editor Side */}
-                    <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-800 overflow-hidden">
-                        {/* Tabs */}
-                        <div className="border-b border-gray-200 dark:border-gray-800">
-                            <div className="flex">
-                                <button
-                                    onClick={() => setActiveTab('editor')}
-                                    className={`px-6 py-3 font-medium transition-colors relative ${activeTab === 'editor'
-                                            ? 'text-blue-600 dark:text-blue-400'
-                                            : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
-                                        }`}
-                                >
-                                    Editor
-                                    {activeTab === 'editor' && (
-                                        <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600 dark:bg-blue-400" />
-                                    )}
-                                </button>
-                                <button
-                                    onClick={() => setActiveTab('metadata')}
-                                    className={`px-6 py-3 font-medium transition-colors relative ${activeTab === 'metadata'
-                                            ? 'text-blue-600 dark:text-blue-400'
-                                            : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
-                                        }`}
-                                >
-                                    Metadata
-                                    {activeTab === 'metadata' && (
-                                        <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600 dark:bg-blue-400" />
-                                    )}
-                                </button>
-                                <button
-                                    onClick={() => setActiveTab('images')}
-                                    className={`px-6 py-3 font-medium transition-colors relative ${activeTab === 'images'
-                                            ? 'text-blue-600 dark:text-blue-400'
-                                            : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
-                                        }`}
-                                >
-                                    Immagini
-                                    {activeTab === 'images' && (
-                                        <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600 dark:bg-blue-400" />
-                                    )}
-                                </button>
-                            </div>
+            <div className="max-w-[1600px] mx-auto p-6">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    {/* Editor Column */}
+                    <div className="lg:col-span-2 space-y-6">
+                        {/* Title */}
+                        <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-6">
+                            <input
+                                type="text"
+                                placeholder="Titolo dell'articolo..."
+                                value={post.title}
+                                onChange={(e) => {
+                                    updatePost({ title: e.target.value });
+                                    if (isNew) {
+                                        updatePost({ slug: generateSlug(e.target.value) });
+                                    }
+                                }}
+                                className="w-full text-3xl font-bold bg-transparent outline-none text-gray-900 dark:text-white placeholder-gray-400"
+                            />
                         </div>
 
-                        {/* Tab Content */}
-                        <div className="p-6">
-                            {activeTab === 'editor' && (
-                                <MarkdownEditor
-                                    title={post.title}
-                                    content={post.content}
-                                    onTitleChange={(title) => {
-                                        updatePost({ title });
-                                        if (isNew && !post.slug) {
-                                            updatePost({ slug: generateSlug(title) });
+                        {/* Excerpt */}
+                        <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-6">
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Excerpt (breve descrizione)
+                            </label>
+                            <textarea
+                                placeholder="Una breve descrizione dell'articolo..."
+                                value={post.excerpt}
+                                onChange={(e) => updatePost({ excerpt: e.target.value })}
+                                rows={2}
+                                className="w-full bg-gray-50 dark:bg-gray-800 rounded-lg px-4 py-2 outline-none focus:ring-2 focus:ring-blue-500"
+                            />
+                        </div>
+
+                        {/* Content Editor */}
+                        <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800">
+                            {/* Toolbar */}
+                            <div className="border-b border-gray-200 dark:border-gray-800 p-4">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                    {toolbarButtons.map((btn, index) => {
+                                        if (btn.type === 'separator') {
+                                            return <div key={index} className="w-px h-6 bg-gray-300 dark:bg-gray-700" />;
                                         }
-                                    }}
-                                    onContentChange={(content) => updatePost({ content })}
-                                />
-                            )}
+                                        const Icon = btn.icon;
+                                        return (
+                                            <button
+                                                key={index}
+                                                onClick={btn.action}
+                                                title={btn.title}
+                                                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors"
+                                            >
+                                                <Icon className="w-4 h-4" />
+                                            </button>
+                                        );
+                                    })}
 
-                            {activeTab === 'metadata' && (
-                                <MetadataForm
-                                    post={post}
-                                    onUpdate={updatePost}
-                                    isNew={isNew}
-                                />
-                            )}
+                                    <div className="w-px h-6 bg-gray-300 dark:bg-gray-700" />
 
-                            {activeTab === 'images' && (
-                                <ImageUploader
-                                    coverImage={post.coverImage}
-                                    onCoverImageChange={(url) => updatePost({ coverImage: url })}
-                                    onImageInsert={(url) => {
-                                        // Insert image markdown at cursor position
-                                        const newContent = post.content + `\n\n![](${url})\n`;
-                                        updatePost({ content: newContent });
-                                        setActiveTab('editor');
-                                    }}
+                                    {/* Note Components Dropdown */}
+                                    <div className="relative group">
+                                        <button className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors flex items-center gap-1">
+                                            <AlertCircle className="w-4 h-4" />
+                                            <ChevronDown className="w-3 h-3" />
+                                        </button>
+                                        <div className="absolute top-full left-0 mt-1 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
+                                            {noteButtons.map((note) => {
+                                                const Icon = note.icon;
+                                                return (
+                                                    <button
+                                                        key={note.type}
+                                                        onClick={() => insertAtCursor(MDX_COMPONENTS.note[note.type])}
+                                                        className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors whitespace-nowrap"
+                                                    >
+                                                        <Icon className={`w-4 h-4 ${note.color}`} />
+                                                        <span className="text-sm">Note {note.type}</span>
+                                                    </button>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Content Textarea */}
+                            <div className="p-6">
+                                <textarea
+                                    ref={contentRef}
+                                    placeholder="Scrivi il contenuto in Markdown/MDX..."
+                                    value={post.content}
+                                    onChange={(e) => updatePost({ content: e.target.value })}
+                                    className="w-full min-h-[500px] bg-transparent outline-none text-gray-900 dark:text-white font-mono text-sm"
                                 />
-                            )}
+                            </div>
                         </div>
                     </div>
 
-                    {/* Preview Side */}
-                    {showPreview && (
-                        <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-800 overflow-hidden">
-                            <div className="border-b border-gray-200 dark:border-gray-800 px-6 py-3">
-                                <h3 className="font-semibold text-gray-900 dark:text-white">Live Preview</h3>
+                    {/* Sidebar - Metadata */}
+                    <div className="lg:col-span-1 space-y-6">
+                        {/* Publishing Settings */}
+                        <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-6 space-y-4">
+                            <h3 className="font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                                <Settings className="w-4 h-4" />
+                                Impostazioni
+                            </h3>
+
+                            {/* Status */}
+                            <div>
+                                <label className="flex items-center gap-3">
+                                    <input
+                                        type="checkbox"
+                                        checked={!post.draft}
+                                        onChange={(e) => updatePost({ draft: !e.target.checked })}
+                                        className="w-4 h-4 text-blue-600"
+                                    />
+                                    <span className="text-sm text-gray-700 dark:text-gray-300">
+                                        Pubblica articolo
+                                    </span>
+                                </label>
                             </div>
-                            <div className="overflow-auto" style={{ maxHeight: 'calc(100vh - 200px)' }}>
-                                <PreviewPanel post={post} />
+
+                            {/* Featured */}
+                            <div>
+                                <label className="flex items-center gap-3">
+                                    <input
+                                        type="checkbox"
+                                        checked={post.featured}
+                                        onChange={(e) => updatePost({ featured: e.target.checked })}
+                                        className="w-4 h-4 text-blue-600"
+                                    />
+                                    <span className="text-sm text-gray-700 dark:text-gray-300">
+                                        Articolo in evidenza
+                                    </span>
+                                </label>
+                            </div>
+
+                            {/* Date */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                    <Calendar className="w-4 h-4 inline mr-1" />
+                                    Data pubblicazione
+                                </label>
+                                <input
+                                    type="date"
+                                    value={post.date}
+                                    onChange={(e) => updatePost({ date: e.target.value })}
+                                    className="w-full bg-gray-50 dark:bg-gray-800 rounded-lg px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+                                />
+                            </div>
+
+                            {/* Slug */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                    Slug URL
+                                </label>
+                                <input
+                                    type="text"
+                                    value={post.slug}
+                                    onChange={(e) => updatePost({ slug: e.target.value })}
+                                    className="w-full bg-gray-50 dark:bg-gray-800 rounded-lg px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+                                />
                             </div>
                         </div>
-                    )}
+
+                        {/* Author */}
+                        <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-6">
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                <User className="w-4 h-4 inline mr-1" />
+                                Autore
+                            </label>
+                            <select
+                                value={authors.find(a => a.name === post.author)?.slug || ''}
+                                onChange={(e) => handleAuthorChange(e.target.value)}
+                                className="w-full bg-gray-50 dark:bg-gray-800 rounded-lg px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+                            >
+                                {authors.map(author => (
+                                    <option key={author.slug} value={author.slug}>
+                                        {author.name}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+
+                        {/* Category */}
+                        <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-6">
+                            <div className="flex items-center justify-between mb-2">
+                                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                    <FolderOpen className="w-4 h-4 inline mr-1" />
+                                    Categoria
+                                </label>
+                                <button
+                                    onClick={() => setShowNewCategoryModal(true)}
+                                    className="text-blue-600 hover:text-blue-700 text-sm"
+                                >
+                                    <Plus className="w-4 h-4" />
+                                </button>
+                            </div>
+                            <select
+                                value={post.category}
+                                onChange={(e) => updatePost({ category: e.target.value })}
+                                className="w-full bg-gray-50 dark:bg-gray-800 rounded-lg px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+                            >
+                                <option value="">Seleziona categoria...</option>
+                                {categories.map(cat => (
+                                    <option key={cat.slug} value={cat.name}>
+                                        {cat.icon} {cat.name}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+
+                        {/* Tags */}
+                        <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-6">
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                <Tag className="w-4 h-4 inline mr-1" />
+                                Tags
+                            </label>
+
+                            {/* Current Tags */}
+                            <div className="flex flex-wrap gap-2 mb-3">
+                                {post.tags.map(tag => (
+                                    <span
+                                        key={tag}
+                                        className="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 rounded-full text-sm flex items-center gap-1"
+                                    >
+                                        {tag}
+                                        <button
+                                            onClick={() => removeTag(tag)}
+                                            className="hover:text-red-600"
+                                        >
+                                            <X className="w-3 h-3" />
+                                        </button>
+                                    </span>
+                                ))}
+                            </div>
+
+                            {/* Tag Input */}
+                            <div className="relative">
+                                <input
+                                    type="text"
+                                    placeholder="Aggiungi tag..."
+                                    value={tagInput}
+                                    onChange={(e) => {
+                                        setTagInput(e.target.value);
+                                        setShowTagSuggestions(e.target.value.length > 0);
+                                    }}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter' && tagInput) {
+                                            e.preventDefault();
+                                            addTag(tagInput);
+                                        }
+                                    }}
+                                    className="w-full bg-gray-50 dark:bg-gray-800 rounded-lg px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+                                />
+
+                                {/* Tag Suggestions */}
+                                {showTagSuggestions && (
+                                    <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 max-h-40 overflow-y-auto">
+                                        {allTags
+                                            .filter(tag =>
+                                                tag.name.toLowerCase().includes(tagInput.toLowerCase()) &&
+                                                !post.tags.includes(tag.name)
+                                            )
+                                            .slice(0, 5)
+                                            .map(tag => (
+                                                <button
+                                                    key={tag.slug}
+                                                    onClick={() => addTag(tag.name)}
+                                                    className="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 text-sm"
+                                                >
+                                                    {tag.name}
+                                                </button>
+                                            ))}
+                                        <button
+                                            onClick={() => addTag(tagInput)}
+                                            className="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 text-sm text-blue-600"
+                                        >
+                                            <Plus className="w-3 h-3 inline mr-1" />
+                                            Crea &quot;{tagInput}&quot;
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Cover Image */}
+                        <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-6">
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                <Image className="w-4 h-4 inline mr-1" />
+                                Immagine di copertina
+                            </label>
+                            <input
+                                type="text"
+                                placeholder="/images/blog/cover.jpg"
+                                value={post.coverImage}
+                                onChange={(e) => updatePost({ coverImage: e.target.value })}
+                                className="w-full bg-gray-50 dark:bg-gray-800 rounded-lg px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500 mb-2"
+                            />
+                            <button
+                                onClick={() => {
+                                    setMediaTarget('cover');
+                                    setShowMediaPicker(true);
+                                }}
+                                className="w-full py-2 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg text-sm transition-colors"
+                            >
+                                <Upload className="w-4 h-4 inline mr-1" />
+                                Seleziona dai Media
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
+
+            {/* New Category Modal */}
+            {showNewCategoryModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white dark:bg-gray-900 rounded-xl p-6 w-96">
+                        <h3 className="text-lg font-semibold mb-4">Nuova Categoria</h3>
+                        <div className="space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium mb-2">Nome</label>
+                                <input
+                                    type="text"
+                                    value={newCategory.name}
+                                    onChange={(e) => setNewCategory({ ...newCategory, name: e.target.value })}
+                                    className="w-full bg-gray-50 dark:bg-gray-800 rounded-lg px-4 py-2 outline-none"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium mb-2">Colore</label>
+                                <input
+                                    type="color"
+                                    value={newCategory.color}
+                                    onChange={(e) => setNewCategory({ ...newCategory, color: e.target.value })}
+                                    className="w-full h-10"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium mb-2">Icona</label>
+                                <input
+                                    type="text"
+                                    value={newCategory.icon}
+                                    onChange={(e) => setNewCategory({ ...newCategory, icon: e.target.value })}
+                                    className="w-full bg-gray-50 dark:bg-gray-800 rounded-lg px-4 py-2 outline-none"
+                                />
+                            </div>
+                            <div className="flex gap-3">
+                                <button
+                                    onClick={createNewCategory}
+                                    className="flex-1 py-2 bg-blue-500 text-white rounded-lg"
+                                >
+                                    Crea
+                                </button>
+                                <button
+                                    onClick={() => setShowNewCategoryModal(false)}
+                                    className="flex-1 py-2 bg-gray-200 dark:bg-gray-800 rounded-lg"
+                                >
+                                    Annulla
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {showPreview && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 z-50 overflow-auto">
+                    <div className="min-h-screen py-8 px-4">
+                        <div className="max-w-4xl mx-auto">
+                            <div className="bg-white dark:bg-gray-900 rounded-xl shadow-2xl">
+                                {/* Header */}
+                                <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800">
+                                    <h3 className="text-lg font-semibold">Preview Articolo</h3>
+                                    <button
+                                        onClick={() => setShowPreview(false)}
+                                        className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg"
+                                    >
+                                        <X className="w-5 h-5" />
+                                    </button>
+                                </div>
+
+                                {/* Preview Content */}
+                                <PostPreview post={post} />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            <MediaPicker
+                isOpen={showMediaPicker}
+                onClose={() => setShowMediaPicker(false)}
+                onSelect={(file) => {
+                    if (mediaTarget === 'cover') {
+                        updatePost({ coverImage: file.url });
+                    } else {
+                        insertAtCursor(`![${file.alt_text || file.original_name}](${file.url})`);
+                    }
+                    setShowMediaPicker(false);
+                }}
+                multiple={false}
+            />
         </div>
     );
 }
