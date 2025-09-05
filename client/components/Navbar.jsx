@@ -8,10 +8,13 @@ import { Menu, X } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import 'animate.css';
 import Link from "next/link";
+import { translations } from "../lang";
 
 const Navbar = ({ translate }) => {
     const router = useRouter();
     const searchParams = useSearchParams();
+
+    translate = translate ? translate : translations[searchParams.get('lang') || 'it'];
 
     const [isOpen, setIsOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
@@ -19,7 +22,7 @@ const Navbar = ({ translate }) => {
     const hash = useHash();
     const { language, setLanguage } = useLang(searchParams.get('lang') || 'it');
 
-    const navItems = [translate.nav.about, translate.nav.services, translate.nav.founders, /* translate.nav.pricing, */ translate.nav.contact];
+    const navItems = [translate.nav.about, translate.nav.services, translate.nav.founders, translate.nav.blog, /* translate.nav.pricing, */ translate.nav.contact];
 
     const handleLangChange = (e) => {
         setLanguage(e.target.value);
@@ -35,9 +38,9 @@ const Navbar = ({ translate }) => {
 
     return (
         <nav
-            className={`fixed backdrop-blur-lg bg-white/70  top-0 w-full z-50 transition-all duration-300 animate__animated animate__fadeInDown ${scrolled ? 'shadow-lg' : ''}`}
+            className={`fixed backdrop-blur-2xl bg-white/70 top-0 w-full z-50 transition-all duration-300 animate__animated animate__fadeInDown ${scrolled ? 'shadow-lg' : ''}`}
         >
-            <div className="container mx-auto px-6 py-4 backdrop-blur-xl">
+            <div className="container mx-auto px-6 py-4">
                 <div className="flex items-center justify-between max-w-[1480px] m-auto">
                     <Link href="/">
                         <Logo />
@@ -46,13 +49,22 @@ const Navbar = ({ translate }) => {
                     {/* Desktop Menu */}
                     <div className="hidden md:flex items-center gap-8">
                         {navItems.map((item) => (
-                            <a
-                                key={item}
-                                href={`#${item.toLowerCase().replace(' ', '-')}`}
-                                className={`hover:text-indigo-600 transition-colors font-medium m ${hash === item.toLowerCase().replace(' ', '-') ? 'text-indigo-600' : 'text-gray-700'}`}
-                            >
-                                {item}
-                            </a>
+                            <span key={item}>
+                                {
+                                    item.startsWith("/") ? 
+                                        <Link href={item}>
+                                            {item.replace("/", "")}
+                                        </Link>
+                                        :
+                                        <a
+                                            key={item}
+                                            href={`${item.startsWith('/') ? '' : '#'}${item.toLowerCase().replace(' ', '-')}`}
+                                            className={`hover:text-indigo-600 transition-colors font-medium m ${hash === item.toLowerCase().replace(' ', '-') ? 'text-indigo-600' : 'text-gray-700'}`}
+                                        >
+                                            {item}
+                                        </a>
+                                }
+                            </span>
                         ))}
                         <a
                             href={`#${translate.nav.contact.toLowerCase().replace(' ', '-')}`}

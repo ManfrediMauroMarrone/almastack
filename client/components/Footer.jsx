@@ -3,16 +3,21 @@
 import Link from "next/link";
 import Logo from "./Logo";
 import { Mail, Phone, MapPin, Linkedin, Github, ArrowUpRight, Code, Sparkles, Send } from "lucide-react";
+import { useSearchParams } from "next/navigation";
+import { translations } from "../lang";
 
 const Footer = ({ translate }) => {
     const currentYear = new Date().getFullYear();
+    const searchParams = useSearchParams();
+
+    translate = translate ? translate : translations[searchParams.get('lang') || 'it'];
     
     // Quick links for navigation
     const quickLinks = [
         { href: `#${translate.nav.about.toLowerCase().replace(' ', '-')}`, label: translate.nav.about },
         { href: `#${translate.nav.services.toLowerCase().replace(' ', '-')}`, label: translate.nav.services },
         { href: `#${translate.nav.founders.toLowerCase().replace(' ', '-')}`, label: translate.nav.founders },
-        { href: `#${translate.nav.pricing.toLowerCase().replace(' ', '-')}`, label: translate.nav.pricing },
+        { href: `${translate.nav.blog.toLowerCase().replace(' ', '-')}`, label: translate.nav.blog.replace("/", "") },
         { href: `#${translate.nav.contact.toLowerCase().replace(' ', '-')}`, label: translate.nav.contact },
     ];
     

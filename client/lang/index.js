@@ -11,6 +11,7 @@ export const translations = {
             services: 'Servizi',
             founders: 'Founders',
             pricing: 'Prezzi',
+            blog: '/blog',
             contact: 'Contatti',
             startProject: 'Inizia Progetto'
         },
@@ -238,6 +239,7 @@ export const translations = {
             services: 'Services',
             founders: 'Founders',
             pricing: 'Pricing',
+            blog: '/blog',
             contact: 'Contact',
             startProject: 'Start Project'
         },

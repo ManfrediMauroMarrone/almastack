@@ -1,0 +1,163 @@
+/* styles/prism-theme.css - Fixed syntax highlighting with visible colors */
+
+/* Core code styling */
+pre[class*="language-"],
+code[class*="language-"] {
+  color: #f8f8f2 !important; /* Light gray text - FORCED */
+  background: none;
+  font-family: 'Fira Code', 'JetBrains Mono', 'SF Mono', 'Consolas', monospace;
+  font-size: 0.9rem;
+  text-align: left;
+  white-space: pre !important;
+  word-spacing: normal;
+  word-break: normal !important;
+  word-wrap: normal !important;
+  line-height: 1.6;
+  tab-size: 2;
+  hyphens: none;
+}
+
+/* Code blocks - ensure dark background */
+pre[class*="language-"] {
+  background: #1e1e1e !important; /* Dark background - FORCED */
+  overflow-x: auto !important;
+  margin: 0;
+  padding: 1.5rem !important;
+  border-radius: 0.75rem;
+}
+
+/* Inline code */
+:not(pre) > code[class*="language-"] {
+  padding: 0.2em 0.4em;
+  border-radius: 0.3em;
+  background: #2d2d2d !important;
+  color: #f8f8f2 !important;
+}
+
+/* Token colors - High contrast for dark background */
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+  color: #8292a2 !important; /* Gray comments */
+}
+
+.token.punctuation {
+  color: #f8f8f2 !important; /* White punctuation */
+}
+
+.token.namespace {
+  color: #ff79c6 !important; /* Pink namespace */
+  opacity: 1;
+}
+
+.token.property,
+.token.tag,
+.token.boolean,
+.token.number,
+.token.constant,
+.token.symbol,
+.token.deleted {
+  color: #ff79c6 !important; /* Pink */
+}
+
+.token.selector,
+.token.attr-name,
+.token.string,
+.token.char,
+.token.builtin,
+.token.inserted {
+  color: #50fa7b !important; /* Green strings */
+}
+
+.token.operator,
+.token.entity,
+.token.url,
+.language-css .token.string,
+.style .token.string {
+  color: #8be9fd !important; /* Cyan */
+}
+
+.token.atrule,
+.token.attr-value,
+.token.keyword {
+  color: #bd93f9 !important; /* Purple keywords */
+}
+
+.token.function,
+.token.class-name {
+  color: #f1fa8c !important; /* Yellow functions */
+}
+
+.token.regex,
+.token.important,
+.token.variable {
+  color: #ffb86c !important; /* Orange */
+}
+
+.token.important,
+.token.bold {
+  font-weight: bold;
+}
+
+.token.italic {
+  font-style: italic;
+}
+
+/* Scrollbar for code blocks */
+pre[class*="language-"]::-webkit-scrollbar {
+  height: 8px;
+  background: #2d2d2d;
+}
+
+pre[class*="language-"]::-webkit-scrollbar-track {
+  background: #2d2d2d;
+  border-radius: 4px;
+}
+
+pre[class*="language-"]::-webkit-scrollbar-thumb {
+  background: #6272a4;
+  border-radius: 4px;
+}
+
+pre[class*="language-"]::-webkit-scrollbar-thumb:hover {
+  background: #8be9fd;
+}
+
+/* Fix for MDX code blocks */
+.prose pre {
+  background-color: #1e1e1e !important;
+  color: #f8f8f2 !important;
+}
+
+.prose pre code {
+  background-color: transparent !important;
+  color: inherit !important;
+  font-size: 0.875rem !important;
+}
+
+/* Dark mode adjustments */
+.dark pre[class*="language-"] {
+  background: #1e1e1e !important;
+}
+
+.dark code[class*="language-"] {
+  color: #f8f8f2 !important;
+}
+
+/* Ensure code is visible in all cases */
+pre code,
+pre[class*="language-"] code {
+  color: #f8f8f2 !important;
+  background: transparent !important;
+}
+
+/* Override any conflicting styles */
+article pre,
+article code {
+  color: #f8f8f2 !important;
+}
+
+article pre {
+  background: #1e1e1e !important;
+}

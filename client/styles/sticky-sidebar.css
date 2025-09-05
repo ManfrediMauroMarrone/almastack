@@ -1,0 +1,38 @@
+/* styles/sticky-sidebar.css */
+
+/* Smooth shadow transition when fixed */
+.is-fixed {
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+}
+
+/* Optional: Add visual indicator when sticky */
+[data-sticky="true"] {
+    will-change: transform;
+}
+
+/* Smooth transitions for theme changes */
+[data-sticky="true"] > div {
+    transition: background-color 0.2s ease, 
+                border-color 0.2s ease;
+}
+
+/* Optional: Pulse animation when becoming fixed */
+@keyframes stickyPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.02); }
+    100% { transform: scale(1); }
+}
+
+.is-fixed {
+    animation: stickyPulse 0.3s ease-out;
+}
+
+/* Improve performance on mobile by disabling on small screens */
+@media (max-width: 1024px) {
+    [data-sticky="true"] {
+        position: static !important;
+        top: auto !important;
+        left: auto !important;
+        width: auto !important;
+    }
+}
