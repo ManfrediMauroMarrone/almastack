@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 
 export async function GET() {
-    const session = cookies().get('admin_session');
+    const session = (await cookies()).get('admin_session');
 
     if (session) {
         return NextResponse.json({ authenticated: true });

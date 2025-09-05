@@ -58,7 +58,7 @@ const Navbar = ({ translate }) => {
                                         :
                                         <a
                                             key={item}
-                                            href={`${item.startsWith('/') ? '' : '#'}${item.toLowerCase().replace(' ', '-')}`}
+                                            href={`${item.startsWith('/') ? '' : '/#'}${item.toLowerCase().replace(' ', '-')}`}
                                             className={`hover:text-indigo-600 transition-colors font-medium m ${hash === item.toLowerCase().replace(' ', '-') ? 'text-indigo-600' : 'text-gray-700'}`}
                                         >
                                             {item}

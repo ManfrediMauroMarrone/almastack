@@ -13,7 +13,7 @@ export async function POST(request) {
             const token = crypto.randomBytes(32).toString('hex');
 
             // Set cookie (in production, store this in a database)
-            cookies().set('admin_session', token, {
+            (await cookies()).set('admin_session', token, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === 'production',
                 sameSite: 'lax',
