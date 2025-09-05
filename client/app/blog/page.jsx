@@ -124,8 +124,8 @@ export default async function BlogPage({ searchParams }) {
                     </div>
 
                     <div className="text-center">
-                        <h1 className="text-5xl md:text-6xl lg:text-7xl font-black mb-6 transition-all duration-1000">
-                            <span className="inline-block bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+                        <h1 className="text-5xl md:text-6xl lg:text-7xl font-black mb-6 transition-all duration-1000 min-h-[80px]">
+                            <span className="inline-block bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent min-h-[80px]">
                                 Almastack Blog
                             </span>
                         </h1>
