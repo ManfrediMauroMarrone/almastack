@@ -26,6 +26,7 @@
     "eslint": "8.45.0",
     "eslint-config-next": "15.5.2",
     "fast-glob": "^3.3.3",
+    "fuse.js": "^7.1.0",
     "glob": "^11.0.3",
     "gray-matter": "^4.0.3",
     "lodash": "^4.17.21",
