@@ -1,986 +1,857 @@
-import Database from 'better-sqlite3';
-import path from 'path';
-import { promises as fs } from 'fs';
-import os from 'os';
+// lib/db-mongodb.js
+import { mongoManager } from './mongodb';
+import { 
+    Post, 
+    Author, 
+    Category, 
+    Tag, 
+    Media, 
+    Analytics,
+    Subscriber,
+    Comment 
+} from './schemas';
 
 /**
- * Database Configuration and Connection Manager
- * Handles permissions, serverless environments, and connection pooling
+ * Ensure database connection before operations
  */
-class DatabaseManager {
-    constructor() {
-        this.db = null;
-        this.dbPath = null;
-        this.isInitialized = false;
-        this.initPromise = null;
-    }
-
-    /**
-     * Get the appropriate database path based on environment
-     */
-    getDatabasePath() {
-        // Check for custom path in environment variables
-        if (process.env.DATABASE_PATH || process.env.NETLIFY) {
-            return process.env.DATABASE_PATH;
-        }
-
-        // Serverless environments (Vercel, Netlify, AWS Lambda)
-        if (process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME) {
-            // Use /tmp directory for serverless
-            return path.join('/tmp', 'blog.db');
-        }
-
-        // Docker container check
-        if (process.env.RUNNING_IN_DOCKER === 'true') {
-            return path.join('/data', 'blog.db');
-        }
-
-        // Development or traditional hosting
-        if (process.env.NODE_ENV === 'production') {
-            // Try to use a writable directory in production
-            const dataDir = path.join(process.cwd(), '/');
-            return path.join(dataDir, 'blog.db');
-        }
-
-        // Default for development
-        return path.join(process.cwd(), 'blog.db');
-    }
-
-    /**
-     * Ensure database directory exists and is writable
-     */
-    async ensureDirectory() {
-        const dir = path.dirname(this.dbPath);
-        
-        try {
-            // Check if directory exists
-            await fs.access(dir);
-            
-            // Check write permissions
-            await fs.access(dir, fs.constants.W_OK);
-            
-            console.log(`✅ Database directory is ready: ${dir}`);
-        } catch (error) {
-            if (error.code === 'ENOENT') {
-                // Directory doesn't exist, create it
-                try {
-                    await fs.mkdir(dir, { recursive: true, mode: 0o755 });
-                    console.log(`📁 Created database directory: ${dir}`);
-                } catch (mkdirError) {
-                    // If creation fails, try temp directory
-                    console.error(`❌ Failed to create directory: ${mkdirError.message}`);
-                    this.dbPath = path.join(os.tmpdir(), 'blog.db');
-                    console.log(`🔄 Fallback to temp directory: ${this.dbPath}`);
-                }
-            } else if (error.code === 'EACCES') {
-                // Permission denied, use temp directory
-                console.warn(`⚠️ No write permission for ${dir}`);
-                this.dbPath = path.join(os.tmpdir(), 'blog.db');
-                console.log(`🔄 Using temp directory: ${this.dbPath}`);
-            }
-        }
-    }
-
-    /**
-     * Copy existing database to new location if needed
-     */
-    async migrateDatabase(oldPath, newPath) {
-        try {
-            // Check if old database exists
-            await fs.access(oldPath);
-            
-            // Check if new database already exists
-            try {
-                await fs.access(newPath);
-                console.log('📊 Database already exists at new location');
-                return;
-            } catch {
-                // New database doesn't exist, copy it
-                console.log(`📋 Migrating database from ${oldPath} to ${newPath}`);
-                await fs.copyFile(oldPath, newPath);
-                console.log('✅ Database migrated successfully');
-            }
-        } catch {
-            // Old database doesn't exist, will be created
-            console.log('📊 No existing database to migrate');
-        }
-    }
-
-    /**
-     * Initialize database connection with retry logic
-     */
-    async initialize() {
-        // Prevent multiple initialization
-        if (this.initPromise) {
-            return this.initPromise;
-        }
-
-        this.initPromise = this._doInitialize();
-        return this.initPromise;
-    }
-
-    async _doInitialize() {
-        if (this.isInitialized && this.db) {
-            return this.db;
-        }
-
-        const maxRetries = 3;
-        let lastError;
-
-        for (let attempt = 1; attempt <= maxRetries; attempt++) {
-            try {
-                console.log(`🔄 Database initialization attempt ${attempt}/${maxRetries}`);
-                
-                // Determine database path
-                this.dbPath = this.getDatabasePath();
-                console.log(`📍 Database path: ${this.dbPath}`);
-                
-                // Ensure directory exists
-                await this.ensureDirectory();
-                
-                // Check for database migration needs
-                const originalPath = path.join(process.cwd(), 'blog.db');
-                if (this.dbPath !== originalPath) {
-                    await this.migrateDatabase(originalPath, this.dbPath);
-                }
-                
-                // Open database connection
-                this.db = new Database(this.dbPath, {
-                    verbose: process.env.NODE_ENV === 'development' ? console.log : null,
-                    fileMustExist: false,
-                    timeout: parseInt(process.env.SQLITE_TIMEOUT || '5000'),
-                });
-
-                // Configure database for better performance and concurrency
-                this.db.pragma('journal_mode = WAL'); // Write-Ahead Logging
-                this.db.pragma('busy_timeout = 5000'); // 5 second timeout
-                this.db.pragma('synchronous = NORMAL'); // Balance between speed and safety
-                this.db.pragma('cache_size = -2000'); // 2MB cache
-                this.db.pragma('foreign_keys = ON'); // Enable foreign keys
-                this.db.pragma('temp_store = MEMORY'); // Use memory for temp tables
-                
-                // Test write capability
-                await this.testWriteCapability();
-                
-                // Initialize schema
-                this.initializeSchema();
-                
-                this.isInitialized = true;
-                console.log('✅ Database initialized successfully');
-                
-                return this.db;
-            } catch (error) {
-                lastError = error;
-                console.error(`❌ Initialization attempt ${attempt} failed:`, error.message);
-                
-                if (attempt < maxRetries) {
-                    // Wait before retry (exponential backoff)
-                    const delay = Math.pow(2, attempt) * 1000;
-                    console.log(`⏳ Waiting ${delay}ms before retry...`);
-                    await new Promise(resolve => setTimeout(resolve, delay));
-                }
-            }
-        }
-
-        throw new Error(`Failed to initialize database after ${maxRetries} attempts: ${lastError.message}`);
-    }
-
-    /**
-     * Test database write capability
-     */
-    async testWriteCapability() {
-        try {
-            // Create test table
-            this.db.prepare(`
-                CREATE TABLE IF NOT EXISTS _write_test (
-                    id INTEGER PRIMARY KEY,
-                    timestamp INTEGER
-                )
-            `).run();
-
-            // Insert test record
-            const stmt = this.db.prepare('INSERT INTO _write_test (timestamp) VALUES (?)');
-            const result = stmt.run(Date.now());
-            
-            // Clean up
-            this.db.prepare('DELETE FROM _write_test WHERE id = ?').run(result.lastInsertRowid);
-            this.db.prepare('DROP TABLE IF EXISTS _write_test').run();
-            
-            console.log('✅ Database write test passed');
-        } catch (error) {
-            throw new Error(`Database is not writable: ${error.message}`);
-        }
-    }
-
-    /**
-     * Initialize database schema
-     */
-    initializeSchema() {
-        // Use transaction for atomic schema creation
-        const createSchema = this.db.transaction(() => {
-            // Posts table - NEW
-            this.db.exec(`
-                CREATE TABLE IF NOT EXISTS posts (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    slug TEXT UNIQUE NOT NULL,
-                    title TEXT NOT NULL,
-                    content TEXT NOT NULL,
-                    excerpt TEXT,
-                    date TEXT DEFAULT CURRENT_TIMESTAMP,
-                    author TEXT NOT NULL,
-                    author_image TEXT,
-                    cover_image TEXT,
-                    category TEXT,
-                    tags TEXT, -- JSON array stored as text
-                    draft INTEGER DEFAULT 1,
-                    featured INTEGER DEFAULT 0,
-                    reading_time TEXT,
-                    views INTEGER DEFAULT 0,
-                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
-                )
-            `);
-
-            // Authors table
-            this.db.exec(`
-                CREATE TABLE IF NOT EXISTS authors (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    slug TEXT UNIQUE NOT NULL,
-                    name TEXT NOT NULL,
-                    bio TEXT,
-                    avatar TEXT,
-                    email TEXT,
-                    twitter TEXT,
-                    linkedin TEXT,
-                    github TEXT,
-                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
-                )
-            `);
-
-            // Categories table
-            this.db.exec(`
-                CREATE TABLE IF NOT EXISTS categories (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    slug TEXT UNIQUE NOT NULL,
-                    name TEXT NOT NULL,
-                    description TEXT,
-                    color TEXT DEFAULT '#3B82F6',
-                    icon TEXT,
-                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
-                )
-            `);
-
-            // Tags table
-            this.db.exec(`
-                CREATE TABLE IF NOT EXISTS tags (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    slug TEXT UNIQUE NOT NULL,
-                    name TEXT NOT NULL,
-                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-                )
-            `);
-
-            // Media table
-            this.db.exec(`
-                CREATE TABLE IF NOT EXISTS media (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    filename TEXT NOT NULL,
-                    original_name TEXT NOT NULL,
-                    path TEXT NOT NULL,
-                    url TEXT NOT NULL,
-                    mime_type TEXT NOT NULL,
-                    size INTEGER NOT NULL,
-                    width INTEGER,
-                    height INTEGER,
-                    alt_text TEXT,
-                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
-                )
-            `);
-
-            // Post metadata table
-            this.db.exec(`
-                CREATE TABLE IF NOT EXISTS post_metadata (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    slug TEXT UNIQUE NOT NULL,
-                    views INTEGER DEFAULT 0,
-                    likes INTEGER DEFAULT 0,
-                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
-                )
-            `);
-
-            // Create indexes for better performance
-            this.db.exec(`
-                CREATE INDEX IF NOT EXISTS idx_posts_slug ON posts(slug);
-                CREATE INDEX IF NOT EXISTS idx_posts_date ON posts(date DESC);
-                CREATE INDEX IF NOT EXISTS idx_posts_draft ON posts(draft);
-                CREATE INDEX IF NOT EXISTS idx_posts_featured ON posts(featured);
-                CREATE INDEX IF NOT EXISTS idx_posts_category ON posts(category);
-                CREATE INDEX IF NOT EXISTS idx_authors_slug ON authors(slug);
-                CREATE INDEX IF NOT EXISTS idx_categories_slug ON categories(slug);
-                CREATE INDEX IF NOT EXISTS idx_tags_slug ON tags(slug);
-                CREATE INDEX IF NOT EXISTS idx_media_created_at ON media(created_at DESC);
-                CREATE INDEX IF NOT EXISTS idx_media_mime_type ON media(mime_type);
-                CREATE INDEX IF NOT EXISTS idx_post_metadata_slug ON post_metadata(slug);
-            `);
-        });
-
-        createSchema();
-        this.insertDefaultData();
-    }
-
-    /**
-     * Insert default data
-     */
-    insertDefaultData() {
-        const insertDefaultData = this.db.transaction(() => {
-            // Insert default authors
-            const insertAuthor = this.db.prepare(`
-                INSERT OR IGNORE INTO authors (slug, name, bio, avatar, email, twitter, linkedin, github)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-            `);
-
-            insertAuthor.run(
-                'alessandro-dantoni',
-                "Alessandro D'Antoni",
-                'Full-stack developer e technical writer appassionato di tecnologie web.',
-                'alessandro_avatar-min.webp',
-                'alessandro@almastack.it',
-                '@alessandro',
-                'https://linkedin.com/in/alessandro-dantoni',
-                'https://github.com/alessandro'
-            );
-
-            insertAuthor.run(
-                'manfredi-marrone',
-                'Manfredi Mauro Marrone',
-                'Developer e specialista in architetture cloud e sistemi distribuiti.',
-                'manfredi_avatar-min.webp',
-                'manfredi@almastack.it',
-                '@manfredi',
-                'https://linkedin.com/in/manfredi-marrone',
-                'https://github.com/manfredi'
-            );
-
-            // Insert default categories
-            const insertCategory = this.db.prepare(`
-                INSERT OR IGNORE INTO categories (slug, name, description, color, icon)
-                VALUES (?, ?, ?, ?, ?)
-            `);
-
-            const defaultCategories = [
-                ['cyber-security', 'Cyber Security', 'Articoli su sicurezza informatica e best practices', '#DC2626', '🔒'],
-                ['web-development', 'Web Development', 'Guide e tutorial sullo sviluppo web moderno', '#3B82F6', '🚀'],
-                ['cloud-computing', 'Cloud Computing', 'AWS, Azure, GCP e architetture cloud', '#10B981', '☁️'],
-                ['ai-ml', 'AI & Machine Learning', 'Intelligenza artificiale e machine learning', '#8B5CF6', '🤖'],
-                ['devops', 'DevOps', 'CI/CD, containerizzazione e automazione', '#F59E0B', '⚙️'],
-                ['database', 'Database', 'SQL, NoSQL e ottimizzazione database', '#06B6D4', '🗄️'],
-                ['mobile-dev', 'Mobile Development', 'React Native, Flutter e sviluppo mobile', '#EC4899', '📱'],
-                ['best-practices', 'Best Practices', 'Pattern, principi e metodologie', '#84CC16', '✨']
-            ];
-
-            defaultCategories.forEach(cat => {
-                insertCategory.run(...cat);
-            });
-        });
-
-        insertDefaultData();
-    }
-
-    /**
-     * Get database instance (ensures initialization)
-     */
-    async getDb() {
-        if (!this.isInitialized || !this.db) {
-            await this.initialize();
-        }
-        return this.db;
-    }
-
-    /**
-     * Execute a query with automatic retry on lock
-     */
-    async executeWithRetry(callback, maxRetries = 3) {
-        let lastError;
-        
-        for (let attempt = 1; attempt <= maxRetries; attempt++) {
-            try {
-                const db = await this.getDb();
-                return callback(db);
-            } catch (error) {
-                lastError = error;
-                
-                // Check if it's a locking error
-                if (error.code === 'SQLITE_BUSY' || error.code === 'SQLITE_LOCKED') {
-                    console.warn(`⚠️ Database locked, attempt ${attempt}/${maxRetries}`);
-                    
-                    if (attempt < maxRetries) {
-                        // Wait with exponential backoff
-                        const delay = Math.pow(2, attempt) * 100;
-                        await new Promise(resolve => setTimeout(resolve, delay));
-                        continue;
-                    }
-                }
-                
-                throw error;
-            }
-        }
-        
-        throw lastError;
-    }
-
-    /**
-     * Close database connection
-     */
-    close() {
-        if (this.db) {
-            this.db.close();
-            this.db = null;
-            this.isInitialized = false;
-            this.initPromise = null;
-            console.log('📊 Database connection closed');
-        }
+async function ensureConnection() {
+    if (!mongoManager.isReady()) {
+        await mongoManager.connect();
     }
 }
 
-// Create singleton instance
-const dbManager = new DatabaseManager();
-
-// Initialize database on first import
-let initializationPromise = null;
-
 /**
- * Ensure database is initialized before any operation
+ * Posts operations
  */
-async function ensureInitialized() {
-    if (!initializationPromise) {
-        initializationPromise = dbManager.initialize();
-    }
-    return initializationPromise;
-}
-
-// Posts operations - NEW
 export const posts = {
+    /**
+     * Get all posts
+     */
     getAll: async () => {
-        await ensureInitialized();
-        return dbManager.executeWithRetry(db => {
-            const rows = db.prepare(`
-                SELECT * FROM posts 
-                ORDER BY date DESC, created_at DESC
-            `).all();
-            
-            // Parse JSON tags
-            return rows.map(row => ({
-                ...row,
-                tags: row.tags ? JSON.parse(row.tags) : [],
-                draft: Boolean(row.draft),
-                featured: Boolean(row.featured)
-            }));
-        });
+        await ensureConnection();
+        return Post.find()
+            .sort({ date: -1, createdAt: -1 })
+            .lean()
+            .exec();
     },
 
+    /**
+     * Get published posts only
+     */
     getPublished: async () => {
-        await ensureInitialized();
-        return dbManager.executeWithRetry(db => {
-            const rows = db.prepare(`
-                SELECT * FROM posts 
-                WHERE draft = 0 
-                ORDER BY date DESC, created_at DESC
-            `).all();
-            
-            // Parse JSON tags
-            return rows.map(row => ({
-                ...row,
-                tags: row.tags ? JSON.parse(row.tags) : [],
-                draft: false,
-                featured: Boolean(row.featured)
-            }));
-        });
+        await ensureConnection();
+        return Post.find({ draft: false })
+            .sort({ date: -1, createdAt: -1 })
+            .lean()
+            .exec();
     },
 
+    /**
+     * Get post by slug
+     */
     getBySlug: async (slug) => {
-        await ensureInitialized();
-        return dbManager.executeWithRetry(db => {
-            const row = db.prepare('SELECT * FROM posts WHERE slug = ?').get(slug);
-            if (!row) return null;
-            
-            return {
-                ...row,
-                tags: row.tags ? JSON.parse(row.tags) : [],
-                draft: Boolean(row.draft),
-                featured: Boolean(row.featured)
-            };
-        });
+        await ensureConnection();
+        return Post.findOne({ slug })
+            .lean()
+            .exec();
     },
 
-    create: async (post) => {
-        await ensureInitialized();
-        return dbManager.executeWithRetry(db => {
-            const stmt = db.prepare(`
-                INSERT INTO posts (
-                    slug, title, content, excerpt, date, author, 
-                    author_image, cover_image, category, tags, 
-                    draft, featured, reading_time
-                )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            `);
-            
-            const result = stmt.run(
-                post.slug,
-                post.title,
-                post.content,
-                post.excerpt || '',
-                post.date || new Date().toISOString().split('T')[0],
-                post.author,
-                post.authorImage || post.author_image || null,
-                post.coverImage || post.cover_image || null,
-                post.category || null,
-                JSON.stringify(post.tags || []),
-                post.draft ? 1 : 0,
-                post.featured ? 1 : 0,
-                post.readingTime || post.reading_time || null
+    /**
+     * Create new post
+     */
+    create: async (postData) => {
+        await ensureConnection();
+        
+        // Prepare data
+        const data = {
+            ...postData,
+            slug: postData.slug || postData.title?.toLowerCase()
+                .replace(/[^a-z0-9]+/g, '-')
+                .replace(/^-+|-+$/g, ''),
+            date: postData.date || new Date(),
+            draft: postData.draft !== undefined ? postData.draft : true,
+            featured: postData.featured || false,
+            views: 0
+        };
+
+        // Create post
+        const post = new Post(data);
+        await post.save();
+
+        // Update category and tags statistics
+        if (data.category) {
+            await Category.findOneAndUpdate(
+                { slug: data.category.toLowerCase() },
+                { $inc: { postCount: 1 } }
             );
-            
-            return { id: result.lastInsertRowid, ...post };
-        });
+        }
+
+        if (data.tags && data.tags.length > 0) {
+            await Tag.updateMany(
+                { slug: { $in: data.tags.map(t => t.toLowerCase()) } },
+                { $inc: { postCount: 1 } }
+            );
+        }
+
+        return post.toObject();
     },
 
+    /**
+     * Update post
+     */
     update: async (slug, updates) => {
-        await ensureInitialized();
-        return dbManager.executeWithRetry(db => {
-            // Prepare the update object
-            const updateData = { ...updates };
+        await ensureConnection();
+        
+        // Get original post for comparison
+        const originalPost = await Post.findOne({ slug }).lean();
+        if (!originalPost) {
+            throw new Error(`Post not found: ${slug}`);
+        }
+
+        // Handle category change
+        if (updates.category && updates.category !== originalPost.category) {
+            // Decrement old category
+            if (originalPost.category) {
+                await Category.findOneAndUpdate(
+                    { slug: originalPost.category.toLowerCase() },
+                    { $inc: { postCount: -1 } }
+                );
+            }
+            // Increment new category
+            await Category.findOneAndUpdate(
+                { slug: updates.category.toLowerCase() },
+                { $inc: { postCount: 1 } }
+            );
+        }
+
+        // Handle tags change
+        if (updates.tags) {
+            const oldTags = originalPost.tags || [];
+            const newTags = updates.tags || [];
             
-            // Handle special fields
-            if ('tags' in updateData && Array.isArray(updateData.tags)) {
-                updateData.tags = JSON.stringify(updateData.tags);
-            }
-            if ('draft' in updateData) {
-                updateData.draft = updateData.draft ? 1 : 0;
-            }
-            if ('featured' in updateData) {
-                updateData.featured = updateData.featured ? 1 : 0;
-            }
-            if ('authorImage' in updateData) {
-                updateData.author_image = updateData.authorImage;
-                delete updateData.authorImage;
-            }
-            if ('coverImage' in updateData) {
-                updateData.cover_image = updateData.coverImage;
-                delete updateData.coverImage;
-            }
-            if ('readingTime' in updateData) {
-                updateData.reading_time = updateData.readingTime;
-                delete updateData.readingTime;
+            // Find removed tags
+            const removedTags = oldTags.filter(t => !newTags.includes(t));
+            if (removedTags.length > 0) {
+                await Tag.updateMany(
+                    { slug: { $in: removedTags.map(t => t.toLowerCase()) } },
+                    { $inc: { postCount: -1 } }
+                );
             }
             
-            const fields = Object.keys(updateData).map(key => `${key} = ?`).join(', ');
-            const values = [...Object.values(updateData), slug];
-            
-            const stmt = db.prepare(`
-                UPDATE posts 
-                SET ${fields}, updated_at = CURRENT_TIMESTAMP 
-                WHERE slug = ?
-            `);
-            stmt.run(values);
-            
-            return posts.getBySlug(slug);
-        });
+            // Find added tags
+            const addedTags = newTags.filter(t => !oldTags.includes(t));
+            if (addedTags.length > 0) {
+                await Tag.updateMany(
+                    { slug: { $in: addedTags.map(t => t.toLowerCase()) } },
+                    { $inc: { postCount: 1 } }
+                );
+            }
+        }
+
+        // Update the post
+        const updatedPost = await Post.findOneAndUpdate(
+            { slug },
+            { 
+                $set: updates,
+            },
+            { new: true, lean: true }
+        );
+
+        return updatedPost;
     },
 
+    /**
+     * Delete post
+     */
     delete: async (slug) => {
-        await ensureInitialized();
-        return dbManager.executeWithRetry(db => {
-            const stmt = db.prepare('DELETE FROM posts WHERE slug = ?');
-            return stmt.run(slug);
-        });
+        await ensureConnection();
+        
+        // Get post for cleanup
+        const post = await Post.findOne({ slug }).lean();
+        if (!post) {
+            throw new Error(`Post not found: ${slug}`);
+        }
+
+        // Update category statistics
+        if (post.category) {
+            await Category.findOneAndUpdate(
+                { slug: post.category.toLowerCase() },
+                { $inc: { postCount: -1 } }
+            );
+        }
+
+        // Update tags statistics
+        if (post.tags && post.tags.length > 0) {
+            await Tag.updateMany(
+                { slug: { $in: post.tags.map(t => t.toLowerCase()) } },
+                { $inc: { postCount: -1 } }
+            );
+        }
+
+        // Delete analytics
+        await Analytics.deleteMany({ postSlug: slug });
+
+        // Delete comments
+        await Comment.deleteMany({ postSlug: slug });
+
+        // Delete the post
+        await Post.deleteOne({ slug });
+
+        return { success: true };
     },
 
+    /**
+     * Search posts
+     */
     search: async (query) => {
-        await ensureInitialized();
-        return dbManager.executeWithRetry(db => {
-            const searchPattern = `%${query}%`;
-            const rows = db.prepare(`
-                SELECT * FROM posts 
-                WHERE title LIKE ? 
-                   OR excerpt LIKE ? 
-                   OR content LIKE ?
-                   OR category LIKE ?
-                   OR tags LIKE ?
-                ORDER BY date DESC
-            `).all(searchPattern, searchPattern, searchPattern, searchPattern, searchPattern);
-            
-            return rows.map(row => ({
-                ...row,
-                tags: row.tags ? JSON.parse(row.tags) : [],
-                draft: Boolean(row.draft),
-                featured: Boolean(row.featured)
-            }));
-        });
+        await ensureConnection();
+        
+        // Use MongoDB text search
+        return Post.find(
+            { $text: { $search: query } },
+            { score: { $meta: "textScore" } }
+        )
+        .sort({ score: { $meta: "textScore" } })
+        .lean()
+        .exec();
     },
 
+    /**
+     * Get posts by category
+     */
     getByCategory: async (category) => {
-        await ensureInitialized();
-        return dbManager.executeWithRetry(db => {
-            const rows = db.prepare(`
-                SELECT * FROM posts 
-                WHERE category = ? AND draft = 0
-                ORDER BY date DESC
-            `).all(category);
-            
-            return rows.map(row => ({
-                ...row,
-                tags: row.tags ? JSON.parse(row.tags) : [],
-                draft: false,
-                featured: Boolean(row.featured)
-            }));
-        });
+        await ensureConnection();
+        return Post.find({ 
+            category: category.toLowerCase(), 
+            draft: false 
+        })
+        .sort({ date: -1 })
+        .lean()
+        .exec();
     },
 
+    /**
+     * Get posts by tag
+     */
     getByTag: async (tag) => {
-        await ensureInitialized();
-        return dbManager.executeWithRetry(db => {
-            const searchPattern = `%"${tag}"%`;
-            const rows = db.prepare(`
-                SELECT * FROM posts 
-                WHERE tags LIKE ? AND draft = 0
-                ORDER BY date DESC
-            `).all(searchPattern);
-            
-            return rows.map(row => ({
-                ...row,
-                tags: row.tags ? JSON.parse(row.tags) : [],
-                draft: false,
-                featured: Boolean(row.featured)
-            }));
-        });
+        await ensureConnection();
+        return Post.find({ 
+            tags: tag.toLowerCase(), 
+            draft: false 
+        })
+        .sort({ date: -1 })
+        .lean()
+        .exec();
     },
 
+    /**
+     * Get featured posts
+     */
     getFeatured: async () => {
-        await ensureInitialized();
-        return dbManager.executeWithRetry(db => {
-            const rows = db.prepare(`
-                SELECT * FROM posts 
-                WHERE featured = 1 AND draft = 0
-                ORDER BY date DESC
-            `).all();
-            
-            return rows.map(row => ({
-                ...row,
-                tags: row.tags ? JSON.parse(row.tags) : [],
-                draft: false,
-                featured: true
-            }));
-        });
+        await ensureConnection();
+        return Post.find({ 
+            featured: true, 
+            draft: false 
+        })
+        .sort({ date: -1 })
+        .lean()
+        .exec();
     },
 
+    /**
+     * Increment post views
+     */
     incrementViews: async (slug) => {
-        await ensureInitialized();
-        return dbManager.executeWithRetry(db => {
-            const stmt = db.prepare(`
-                UPDATE posts 
-                SET views = views + 1 
-                WHERE slug = ?
-            `);
-            return stmt.run(slug);
-        });
+        await ensureConnection();
+        
+        // Increment views
+        await Post.findOneAndUpdate(
+            { slug },
+            { $inc: { views: 1 } }
+        );
+
+        // Update analytics
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        await Analytics.findOneAndUpdate(
+            { postSlug: slug, date: today },
+            { 
+                $inc: { views: 1 },
+                $setOnInsert: { date: today, postSlug: slug }
+            },
+            { upsert: true }
+        );
+
+        return { success: true };
+    },
+
+    /**
+     * Get paginated posts
+     */
+    getPaginated: async (page = 1, limit = 10, filter = {}) => {
+        await ensureConnection();
+        
+        const skip = (page - 1) * limit;
+        const query = { ...filter };
+        
+        const [posts, total] = await Promise.all([
+            Post.find(query)
+                .sort({ date: -1 })
+                .skip(skip)
+                .limit(limit)
+                .lean()
+                .exec(),
+            Post.countDocuments(query)
+        ]);
+
+        return {
+            posts,
+            pagination: {
+                page,
+                limit,
+                total,
+                totalPages: Math.ceil(total / limit)
+            }
+        };
     }
 };
 
-// Authors operations
+/**
+ * Authors operations
+ */
 export const authors = {
     getAll: async () => {
-        await ensureInitialized();
-        return dbManager.executeWithRetry(db => 
-            db.prepare('SELECT * FROM authors ORDER BY name').all()
-        );
+        await ensureConnection();
+        return Author.find()
+            .sort({ name: 1 })
+            .lean()
+            .exec();
     },
 
     getBySlug: async (slug) => {
-        await ensureInitialized();
-        return dbManager.executeWithRetry(db => 
-            db.prepare('SELECT * FROM authors WHERE slug = ?').get(slug)
-        );
+        await ensureConnection();
+        return Author.findOne({ slug })
+            .lean()
+            .exec();
     },
 
-    create: async (author) => {
-        await ensureInitialized();
-        return dbManager.executeWithRetry(db => {
-            const stmt = db.prepare(`
-                INSERT INTO authors (slug, name, bio, avatar, email, twitter, linkedin, github)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-            `);
-            const result = stmt.run(
-                author.slug,
-                author.name,
-                author.bio,
-                author.avatar,
-                author.email,
-                author.twitter,
-                author.linkedin,
-                author.github
-            );
-            return { id: result.lastInsertRowid, ...author };
+    create: async (authorData) => {
+        await ensureConnection();
+        
+        const author = new Author({
+            ...authorData,
+            slug: authorData.slug || authorData.name?.toLowerCase()
+                .replace(/[^a-z0-9]+/g, '-')
+                .replace(/^-+|-+$/g, '')
         });
+        
+        await author.save();
+        return author.toObject();
     },
 
     update: async (slug, updates) => {
-        await ensureInitialized();
-        return dbManager.executeWithRetry(db => {
-            const fields = Object.keys(updates).map(key => `${key} = ?`).join(', ');
-            const values = [...Object.values(updates), slug];
-            const stmt = db.prepare(`UPDATE authors SET ${fields}, updated_at = CURRENT_TIMESTAMP WHERE slug = ?`);
-            stmt.run(values);
-            return db.prepare('SELECT * FROM authors WHERE slug = ?').get(slug);
-        });
+        await ensureConnection();
+        return Author.findOneAndUpdate(
+            { slug },
+            { 
+                $set: updates,
+            },
+            { new: true, lean: true }
+        );
     },
 
     delete: async (slug) => {
-        await ensureInitialized();
-        return dbManager.executeWithRetry(db => {
-            const stmt = db.prepare('DELETE FROM authors WHERE slug = ?');
-            return stmt.run(slug);
-        });
+        await ensureConnection();
+        await Author.deleteOne({ slug });
+        return { success: true };
     }
 };
 
-// Categories operations
+/**
+ * Categories operations
+ */
 export const categories = {
     getAll: async () => {
-        await ensureInitialized();
-        return dbManager.executeWithRetry(db => 
-            db.prepare('SELECT * FROM categories ORDER BY name').all()
-        );
+        await ensureConnection();
+        return Category.find()
+            .sort({ order: 1, name: 1 })
+            .lean()
+            .exec();
     },
 
     getBySlug: async (slug) => {
-        await ensureInitialized();
-        return dbManager.executeWithRetry(db => 
-            db.prepare('SELECT * FROM categories WHERE slug = ?').get(slug)
-        );
+        await ensureConnection();
+        return Category.findOne({ slug })
+            .lean()
+            .exec();
     },
 
-    create: async (category) => {
-        await ensureInitialized();
-        return dbManager.executeWithRetry(db => {
-            const stmt = db.prepare(`
-                INSERT INTO categories (slug, name, description, color, icon)
-                VALUES (?, ?, ?, ?, ?)
-            `);
-            const result = stmt.run(
-                category.slug,
-                category.name,
-                category.description,
-                category.color || '#3B82F6',
-                category.icon
-            );
-            return { id: result.lastInsertRowid, ...category };
+    create: async (categoryData) => {
+        await ensureConnection();
+        
+        const category = new Category({
+            ...categoryData,
+            slug: categoryData.slug || categoryData.name?.toLowerCase()
+                .replace(/[^a-z0-9]+/g, '-')
+                .replace(/^-+|-+$/g, '')
         });
+        
+        await category.save();
+        return category.toObject();
     },
 
     update: async (slug, updates) => {
-        await ensureInitialized();
-        return dbManager.executeWithRetry(db => {
-            const fields = Object.keys(updates).map(key => `${key} = ?`).join(', ');
-            const values = [...Object.values(updates), slug];
-            const stmt = db.prepare(`UPDATE categories SET ${fields}, updated_at = CURRENT_TIMESTAMP WHERE slug = ?`);
-            stmt.run(values);
-            return db.prepare('SELECT * FROM categories WHERE slug = ?').get(slug);
-        });
+        await ensureConnection();
+        return Category.findOneAndUpdate(
+            { slug },
+            { 
+                $set: updates,
+            },
+            { new: true, lean: true }
+        );
     },
 
     delete: async (slug) => {
-        await ensureInitialized();
-        return dbManager.executeWithRetry(db => {
-            const stmt = db.prepare('DELETE FROM categories WHERE slug = ?');
-            return stmt.run(slug);
-        });
+        await ensureConnection();
+        
+        // Reset posts that use this category
+        await Post.updateMany(
+            { category: slug },
+            { $unset: { category: 1 } }
+        );
+        
+        await Category.deleteOne({ slug });
+        return { success: true };
+    },
+
+    /**
+     * Get categories with post count
+     */
+    getWithStats: async () => {
+        await ensureConnection();
+        return Category.aggregate([
+            {
+                $lookup: {
+                    from: 'posts',
+                    let: { categorySlug: '$slug' },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: {
+                                    $and: [
+                                        { $eq: ['$category', '$$categorySlug'] },
+                                        { $eq: ['$draft', false] }
+                                    ]
+                                }
+                            }
+                        },
+                        { $count: 'count' }
+                    ],
+                    as: 'postStats'
+                }
+            },
+            {
+                $addFields: {
+                    postCount: {
+                        $ifNull: [{ $arrayElemAt: ['$postStats.count', 0] }, 0]
+                    }
+                }
+            },
+            {
+                $project: {
+                    postStats: 0
+                }
+            },
+            {
+                $sort: { order: 1, name: 1 }
+            }
+        ]);
     }
 };
 
-// Tags operations
+/**
+ * Tags operations
+ */
 export const tags = {
     getAll: async () => {
-        await ensureInitialized();
-        return dbManager.executeWithRetry(db => 
-            db.prepare('SELECT * FROM tags ORDER BY name').all()
-        );
+        await ensureConnection();
+        return Tag.find()
+            .sort({ name: 1 })
+            .lean()
+            .exec();
     },
 
     getBySlug: async (slug) => {
-        await ensureInitialized();
-        return dbManager.executeWithRetry(db => 
-            db.prepare('SELECT * FROM tags WHERE slug = ?').get(slug)
-        );
+        await ensureConnection();
+        return Tag.findOne({ slug })
+            .lean()
+            .exec();
     },
 
-    create: async (tag) => {
-        await ensureInitialized();
-        return dbManager.executeWithRetry(db => {
-            const stmt = db.prepare(`
-                INSERT OR IGNORE INTO tags (slug, name)
-                VALUES (?, ?)
-            `);
-            const result = stmt.run(tag.slug, tag.name);
-            return { id: result.lastInsertRowid, ...tag };
+    create: async (tagData) => {
+        await ensureConnection();
+        
+        const tag = new Tag({
+            ...tagData,
+            slug: tagData.slug || tagData.name?.toLowerCase()
+                .replace(/[^a-z0-9]+/g, '-')
+                .replace(/^-+|-+$/g, '')
         });
+        
+        // Use upsert to avoid duplicates
+        return Tag.findOneAndUpdate(
+            { slug: tag.slug },
+            { $setOnInsert: tag.toObject() },
+            { upsert: true, new: true, lean: true }
+        );
     },
 
     createMany: async (tagsList) => {
-        await ensureInitialized();
-        return dbManager.executeWithRetry(db => {
-            const stmt = db.prepare('INSERT OR IGNORE INTO tags (slug, name) VALUES (?, ?)');
-            const insertMany = db.transaction((tags) => {
-                for (const tag of tags) {
-                    stmt.run(tag.slug, tag.name);
-                }
-            });
-            insertMany(tagsList);
-        });
+        await ensureConnection();
+        
+        const operations = tagsList.map(tag => ({
+            updateOne: {
+                filter: { slug: tag.slug },
+                update: { $setOnInsert: tag },
+                upsert: true
+            }
+        }));
+        
+        await Tag.bulkWrite(operations);
+        return { success: true };
     },
 
     delete: async (slug) => {
-        await ensureInitialized();
-        return dbManager.executeWithRetry(db => {
-            const stmt = db.prepare('DELETE FROM tags WHERE slug = ?');
-            return stmt.run(slug);
-        });
+        await ensureConnection();
+        
+        // Remove tag from all posts
+        await Post.updateMany(
+            { tags: slug },
+            { $pull: { tags: slug } }
+        );
+        
+        await Tag.deleteOne({ slug });
+        return { success: true };
     },
 
     search: async (query) => {
-        await ensureInitialized();
-        return dbManager.executeWithRetry(db => 
-            db.prepare('SELECT * FROM tags WHERE name LIKE ? ORDER BY name LIMIT 10')
-                .all(`%${query}%`)
-        );
-    }
-};
-
-// Media operations
-export const media = {
-    getAll: async (limit = 50, offset = 0) => {
-        await ensureInitialized();
-        return dbManager.executeWithRetry(db =>
-            db.prepare('SELECT * FROM media ORDER BY created_at DESC LIMIT ? OFFSET ?')
-                .all(limit, offset)
-        );
+        await ensureConnection();
+        return Tag.find(
+            { name: { $regex: query, $options: 'i' } }
+        )
+        .limit(10)
+        .sort({ name: 1 })
+        .lean()
+        .exec();
     },
 
     /**
-     * Count total media items (for pagination)
-     * @param {string|null} searchQuery - Optional search query
+     * Get popular tags
      */
-    count: async (searchQuery = null) => {
-        await ensureInitialized();
-        return dbManager.executeWithRetry(db => {
-            if (searchQuery) {
-                const searchPattern = `%${searchQuery}%`;
-                const stmt = db.prepare(`
-                    SELECT COUNT(*) as total FROM media 
-                    WHERE filename LIKE ? 
-                       OR original_name LIKE ? 
-                       OR alt_text LIKE ?
-                `);
-                const result = stmt.get(searchPattern, searchPattern, searchPattern);
-                return result.total;
-            }
+    getPopular: async (limit = 20) => {
+        await ensureConnection();
+        return Tag.find({ postCount: { $gt: 0 } })
+            .sort({ postCount: -1, name: 1 })
+            .limit(limit)
+            .lean()
+            .exec();
+    }
+};
 
-            const result = db.prepare('SELECT COUNT(*) as total FROM media')
-                .get()
-            return result.total;
-        });
+/**
+ * Media operations
+ */
+export const media = {
+    getAll: async (limit = 50, offset = 0) => {
+        await ensureConnection();
+        return Media.find()
+            .sort({ createdAt: -1 })
+            .skip(offset)
+            .limit(limit)
+            .lean()
+            .exec();
+    },
+
+    count: async (searchQuery = null) => {
+        await ensureConnection();
+        
+        const query = searchQuery 
+            ? { 
+                $or: [
+                    { filename: { $regex: searchQuery, $options: 'i' } },
+                    { originalName: { $regex: searchQuery, $options: 'i' } },
+                    { altText: { $regex: searchQuery, $options: 'i' } }
+                ]
+              }
+            : {};
+            
+        return Media.countDocuments(query);
     },
 
     getById: async (id) => {
-        await ensureInitialized();
-        return dbManager.executeWithRetry(db => 
-            db.prepare('SELECT * FROM media WHERE id = ?').get(id)
-        );
+        await ensureConnection();
+        return Media.findById(id).lean().exec();
     },
 
-    create: async (file) => {
-        await ensureInitialized();
-        return dbManager.executeWithRetry(db => {
-            const stmt = db.prepare(`
-                INSERT INTO media (filename, original_name, path, url, mime_type, size, width, height, alt_text)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-            `);
-            const result = stmt.run(
-                file.filename,
-                file.originalName,
-                file.path,
-                file.url,
-                file.mimeType,
-                file.size,
-                file.width || null,
-                file.height || null,
-                file.altText || null
-            );
-            return { id: result.lastInsertRowid, ...file };
-        });
+    create: async (fileData) => {
+        await ensureConnection();
+        
+        const media = new Media(fileData);
+        await media.save();
+        return media.toObject();
     },
 
     update: async (id, updates) => {
-        await ensureInitialized();
-        return dbManager.executeWithRetry(db => {
-            const fields = Object.keys(updates).map(key => `${key} = ?`).join(', ');
-            const values = [...Object.values(updates), id];
-            const stmt = db.prepare(`UPDATE media SET ${fields}, updated_at = CURRENT_TIMESTAMP WHERE id = ?`);
-            stmt.run(values);
-            return db.prepare('SELECT * FROM media WHERE id = ?').get(id);
-        });
+        await ensureConnection();
+        return Media.findByIdAndUpdate(
+            id,
+            { 
+                $set: updates,
+            },
+            { new: true, lean: true }
+        );
     },
 
     delete: async (id) => {
-        await ensureInitialized();
-        return dbManager.executeWithRetry(db => {
-            const file = db.prepare('SELECT * FROM media WHERE id = ?').get(id);
-            if (file) {
-                const stmt = db.prepare('DELETE FROM media WHERE id = ?');
-                stmt.run(id);
-                return file;
-            }
-            return null;
-        });
+        await ensureConnection();
+        const file = await Media.findByIdAndDelete(id).lean();
+        return file;
+    },
+
+    deleteByFilename: async (filename) => {
+        await ensureConnection();
+        const file = await Media.findOneAndDelete({ filename }).lean();
+        return file;
     },
 
     search: async (query) => {
-        await ensureInitialized();
-        return dbManager.executeWithRetry(db => 
-            db.prepare(`
-                SELECT * FROM media 
-                WHERE original_name LIKE ? OR alt_text LIKE ?
-                ORDER BY created_at DESC
-                LIMIT 20
-            `).all(`%${query}%`, `%${query}%`)
+        await ensureConnection();
+        return Media.find(
+            {
+                $or: [
+                    { originalName: { $regex: query, $options: 'i' } },
+                    { altText: { $regex: query, $options: 'i' } }
+                ]
+            }
+        )
+        .sort({ createdAt: -1 })
+        .limit(20)
+        .lean()
+        .exec();
+    }
+};
+
+/**
+ * Analytics operations (new)
+ */
+export const analytics = {
+    /**
+     * Get analytics for a post
+     */
+    getByPost: async (postSlug, startDate = null, endDate = null) => {
+        await ensureConnection();
+        
+        const query = { postSlug };
+        if (startDate || endDate) {
+            query.date = {};
+            if (startDate) query.date.$gte = startDate;
+            if (endDate) query.date.$lte = endDate;
+        }
+        
+        return Analytics.find(query)
+            .sort({ date: -1 })
+            .lean()
+            .exec();
+    },
+
+    /**
+     * Get aggregated analytics
+     */
+    getAggregated: async (postSlug, period = 'month') => {
+        await ensureConnection();
+        
+        const pipeline = [
+            { $match: { postSlug } },
+            {
+                $group: {
+                    _id: {
+                        year: { $year: '$date' },
+                        month: period !== 'year' ? { $month: '$date' } : null,
+                        day: period === 'day' ? { $dayOfMonth: '$date' } : null
+                    },
+                    totalViews: { $sum: '$views' },
+                    uniqueViews: { $sum: '$uniqueViews' },
+                    likes: { $sum: '$likes' },
+                    shares: { $sum: '$shares' },
+                    comments: { $sum: '$comments' }
+                }
+            },
+            { $sort: { '_id.year': -1, '_id.month': -1, '_id.day': -1 } }
+        ];
+        
+        return Analytics.aggregate(pipeline);
+    },
+
+    /**
+     * Record analytics event
+     */
+    recordEvent: async (postSlug, eventType, data = {}) => {
+        await ensureConnection();
+        
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        const update = { $inc: {} };
+        
+        switch (eventType) {
+            case 'view':
+                update.$inc.views = 1;
+                if (data.unique) update.$inc.uniqueViews = 1;
+                if (data.source) update.$inc[`sources.${data.source}`] = 1;
+                if (data.device) update.$inc[`devices.${data.device}`] = 1;
+                break;
+            case 'like':
+                update.$inc.likes = 1;
+                break;
+            case 'share':
+                update.$inc.shares = 1;
+                break;
+            case 'comment':
+                update.$inc.comments = 1;
+                break;
+        }
+        
+        return Analytics.findOneAndUpdate(
+            { postSlug, date: today },
+            {
+                ...update,
+                $setOnInsert: { date: today, postSlug }
+            },
+            { upsert: true, new: true }
         );
     }
 };
 
-// Export manager for advanced usage
-export { dbManager };
+/**
+ * Database statistics
+ */
+export const stats = {
+    /**
+     * Get overall statistics
+     */
+    getOverview: async () => {
+        await ensureConnection();
+        
+        const [
+            totalPosts,
+            publishedPosts,
+            draftPosts,
+            totalCategories,
+            totalTags,
+            totalMedia,
+            totalAuthors,
+            totalSubscribers,
+            totalComments
+        ] = await Promise.all([
+            Post.countDocuments(),
+            Post.countDocuments({ draft: false }),
+            Post.countDocuments({ draft: true }),
+            Category.countDocuments(),
+            Tag.countDocuments(),
+            Media.countDocuments(),
+            Author.countDocuments(),
+            Subscriber.countDocuments({ status: 'active' }),
+            Comment.countDocuments({ status: 'approved' })
+        ]);
 
-// Handle process termination gracefully
-if (typeof process !== 'undefined') {
-    process.on('SIGINT', () => {
-        dbManager.close();
-        process.exit(0);
-    });
+        // Get total views
+        const viewsResult = await Post.aggregate([
+            { $group: { _id: null, totalViews: { $sum: '$views' } } }
+        ]);
+        const totalViews = viewsResult[0]?.totalViews || 0;
 
-    process.on('SIGTERM', () => {
-        dbManager.close();
-        process.exit(0);
-    });
+        return {
+            totalPosts,
+            publishedPosts,
+            draftPosts,
+            totalViews,
+            categories: totalCategories,
+            tags: totalTags,
+            media: totalMedia,
+            authors: totalAuthors,
+            subscribers: totalSubscribers,
+            comments: totalComments
+        };
+    }
+};
+
+/**
+ * Initialize default data
+ */
+export async function initializeDefaultData() {
+    await ensureConnection();
+    
+    // Check if data already exists
+    const existingAuthors = await Author.countDocuments();
+    if (existingAuthors > 0) {
+        console.log('📊 Default data already exists');
+        return;
+    }
+
+    console.log('🔄 Initializing default data...');
+
+    // Create default authors
+    const defaultAuthors = [
+        {
+            slug: 'alessandro-dantoni',
+            name: "Alessandro D'Antoni",
+            bio: 'Full-stack developer e technical writer appassionato di tecnologie web.',
+            avatar: '/images/authors/alessandro_avatar-min.webp',
+            email: 'alessandro@almastack.it',
+            twitter: '@alessandro',
+            linkedin: 'https://linkedin.com/in/alessandro-dantoni',
+            github: 'https://github.com/alessandro'
+        },
+        {
+            slug: 'manfredi-marrone',
+            name: 'Manfredi Mauro Marrone',
+            bio: 'Developer e specialista in architetture cloud e sistemi distribuiti.',
+            avatar: '/images/authors/manfredi_avatar-min.webp',
+            email: 'manfredi@almastack.it',
+            twitter: '@manfredi',
+            linkedin: 'https://linkedin.com/in/manfredi-marrone',
+            github: 'https://github.com/manfredi'
+        }
+    ];
+
+    await Author.insertMany(defaultAuthors);
+
+    // Create default categories
+    const defaultCategories = [
+        { slug: 'cyber-security', name: 'Cyber Security', description: 'Articoli su sicurezza informatica e best practices', color: '#DC2626', icon: '🔒' },
+        { slug: 'web-development', name: 'Web Development', description: 'Guide e tutorial sullo sviluppo web moderno', color: '#3B82F6', icon: '🚀' },
+        { slug: 'cloud-computing', name: 'Cloud Computing', description: 'AWS, Azure, GCP e architetture cloud', color: '#10B981', icon: '☁️' },
+        { slug: 'ai-ml', name: 'AI & Machine Learning', description: 'Intelligenza artificiale e machine learning', color: '#8B5CF6', icon: '🤖' },
+        { slug: 'devops', name: 'DevOps', description: 'CI/CD, containerizzazione e automazione', color: '#F59E0B', icon: '⚙️' },
+        { slug: 'database', name: 'Database', description: 'SQL, NoSQL e ottimizzazione database', color: '#06B6D4', icon: '🗄️' },
+        { slug: 'mobile-dev', name: 'Mobile Development', description: 'React Native, Flutter e sviluppo mobile', color: '#EC4899', icon: '📱' },
+        { slug: 'best-practices', name: 'Best Practices', description: 'Pattern, principi e metodologie', color: '#84CC16', icon: '✨' }
+    ];
+
+    await Category.insertMany(defaultCategories);
+
+    console.log('✅ Default data initialized');
 }
 
-// Default export for backward compatibility
+// Export all collections
 export default {
     posts,
     authors,
     categories,
     tags,
-    media
+    media,
+    analytics,
+    stats,
+    initializeDefaultData
 };
