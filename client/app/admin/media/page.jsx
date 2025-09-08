@@ -45,7 +45,8 @@ export default function MediaManager() {
         try {
             const res = await fetch('/api/admin/media');
             const data = await res.json();
-            setMediaFiles(Array.isArray(data) ? data : []);
+            console.log(data)
+            setMediaFiles(Array.isArray(data.files) ? data.files : []);
         } catch (error) {
             console.error('Error loading media:', error);
         } finally {
@@ -371,6 +372,7 @@ export default function MediaManager() {
                                             src={file.url}
                                             alt={file.alt_text || file.original_name}
                                             className="w-full h-full object-cover"
+                                            unoptimized
                                             width={400}
                                             height={400}
                                         />

@@ -10,6 +10,18 @@ const nextConfig = {
                 protocol: 'https',
                 hostname: '**',
             },
+            {
+                protocol: 'https',
+                hostname: 'almastack.it',
+                port: '',
+                pathname: '/api/blob/**',
+            },
+            {
+                protocol: 'http',
+                hostname: 'localhost',
+                port: '3000',
+                pathname: '/api/blob/**',
+            }
         ],
     },
 

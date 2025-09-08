@@ -4,3 +4,16 @@
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
+
+# Configurazione per Blobs
+[blobs]
+  # Assicura che i blobs siano accessibili pubblicamente
+  [[blobs.rules]]
+    path = "/.netlify/blobs/*"
+    
+# Headers per i blob
+[[headers]]
+  for = "/.netlify/blobs/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+    Access-Control-Allow-Origin = "*"

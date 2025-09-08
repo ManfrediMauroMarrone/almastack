@@ -607,10 +607,35 @@ export const tags = {
 export const media = {
     getAll: async (limit = 50, offset = 0) => {
         await ensureInitialized();
-        return dbManager.executeWithRetry(db => 
+        return dbManager.executeWithRetry(db =>
             db.prepare('SELECT * FROM media ORDER BY created_at DESC LIMIT ? OFFSET ?')
                 .all(limit, offset)
         );
+    },
+
+    /**
+     * Count total media items (for pagination)
+     * @param {string|null} searchQuery - Optional search query
+     */
+    count: async (searchQuery = null) => {
+        await ensureInitialized();
+        return dbManager.executeWithRetry(db => {
+            if (searchQuery) {
+                const searchPattern = `%${searchQuery}%`;
+                const stmt = db.prepare(`
+                    SELECT COUNT(*) as total FROM media 
+                    WHERE filename LIKE ? 
+                       OR original_name LIKE ? 
+                       OR alt_text LIKE ?
+                `);
+                const result = stmt.get(searchPattern, searchPattern, searchPattern);
+                return result.total;
+            }
+
+            const result = db.prepare('SELECT COUNT(*) as total FROM media')
+                .get()
+            return result.total;
+        });
     },
 
     getById: async (id) => {

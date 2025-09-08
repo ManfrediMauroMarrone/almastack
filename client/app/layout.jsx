@@ -59,7 +59,7 @@ export default function RootLayout({
                 <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdWebSite[lang] || jsonLdWebSite["it"]) }} />
                 <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdService[lang] || jsonLdService["it"]) }} />
             </Head>
-            <body className={`${inter.className} w-screen overflow-x-hidden`}>
+            <body suppressHydrationWarning className={`${inter.className} w-screen overflow-x-hidden`}>
                 <SplashScreen 
                     duration={2000}        // Durata in millisecondi
                     showOnce={true}        // Mostra solo una volta per sessione

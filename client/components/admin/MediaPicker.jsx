@@ -33,7 +33,7 @@ export default function MediaPicker({ isOpen, onClose, onSelect, multiple = fals
         try {
             const res = await fetch('/api/admin/media');
             const data = await res.json();
-            setMediaFiles(Array.isArray(data) ? data : []);
+            setMediaFiles(Array.isArray(data.files) ? data.files : []);
         } catch (error) {
             console.error('Error loading media:', error);
         } finally {
