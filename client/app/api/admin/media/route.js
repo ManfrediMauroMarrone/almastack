@@ -23,7 +23,7 @@ export async function GET(request) {
         return NextResponse.json(files);
     } catch (error) {
         console.log(error);
-        return NextResponse.json({ error: 'Failed to fetch media' }, { status: 500 });
+        return NextResponse.json({ error: 'Failed to fetch media', message: error.message }, { status: 500 });
     }
 }
 
