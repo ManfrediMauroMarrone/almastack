@@ -778,7 +778,7 @@ export default function AdvancedPostEditor() {
                     if (mediaTarget === 'cover') {
                         updatePost({ coverImage: file.url });
                     } else {
-                        insertAtCursor(`![${file.alt_text || file.original_name}](${file.url})`);
+                        insertAtCursor(`![${file.altText || file.filename}](${file.url})`);
                     }
                     setShowMediaPicker(false);
                 }}

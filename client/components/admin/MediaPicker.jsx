@@ -95,15 +95,15 @@ export default function MediaPicker({ isOpen, onClose, onSelect, multiple = fals
     const toggleSelect = (file) => {
         if (multiple) {
             setSelectedFiles(prev => {
-                const isSelected = prev.some(f => f.id === file.id);
+                const isSelected = prev.some(f => f._id === file._id);
                 if (isSelected) {
-                    return prev.filter(f => f.id !== file.id);
+                    return prev.filter(f => f._id !== file._id);
                 } else {
                     return [...prev, file];
                 }
             });
         } else {
-            if (selectedFiles.some(f => f.id === file.id)) {
+            if (selectedFiles.some(f => f._id === file._id)) {
                 setSelectedFiles([]);
                 return;
             }
@@ -120,8 +120,8 @@ export default function MediaPicker({ isOpen, onClose, onSelect, multiple = fals
     };
 
     const filteredMedia = mediaFiles.filter(file =>
-        file.original_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (file.alt_text && file.alt_text.toLowerCase().includes(searchQuery.toLowerCase()))
+        file.filename.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (file.altText && file.altText.toLowerCase().includes(searchQuery.toLowerCase()))
     );
 
     if (!isOpen) return null;
@@ -210,10 +210,10 @@ export default function MediaPicker({ isOpen, onClose, onSelect, multiple = fals
                     ) : viewMode === 'grid' ? (
                         <div className="grid grid-cols-4 md:grid-cols-6 gap-4">
                             {filteredMedia.map((file) => {
-                                const isSelected = selectedFiles.some(f => f.id === file.id);
+                                const isSelected = selectedFiles.some(f => f._id === file._id);
                                 return (
                                     <div
-                                        key={file.id}
+                                        key={file._id}
                                         onClick={() => toggleSelect(file)}
                                         className={`relative group cursor-pointer rounded-lg overflow-hidden border-2 transition-all ${
                                             isSelected
@@ -224,7 +224,7 @@ export default function MediaPicker({ isOpen, onClose, onSelect, multiple = fals
                                         <div className="aspect-square bg-gray-100 dark:bg-gray-800">
                                             <NextImage
                                                 src={file.url}
-                                                alt={file.alt_text || file.original_name}
+                                                alt={file.altText || file.filename}
                                                 className="w-full h-full object-cover"
                                                 width={400}
                                                 height={400}
@@ -243,10 +243,10 @@ export default function MediaPicker({ isOpen, onClose, onSelect, multiple = fals
                     ) : (
                         <div className="space-y-2">
                             {filteredMedia.map((file) => {
-                                const isSelected = selectedFiles.some(f => f.id === file.id);
+                                const isSelected = selectedFiles.some(f => f._id === file._id);
                                 return (
                                     <div
-                                        key={file.id}
+                                        key={file._id}
                                         onClick={() => toggleSelect(file)}
                                         className={`flex items-center gap-4 p-3 rounded-lg cursor-pointer transition-all ${
                                             isSelected
@@ -257,14 +257,14 @@ export default function MediaPicker({ isOpen, onClose, onSelect, multiple = fals
                                         <div className="w-12 h-12 rounded overflow-hidden bg-gray-100 dark:bg-gray-800">
                                             <NextImage
                                                 src={file.url}
-                                                alt={file.alt_text || file.original_name}
+                                                alt={file.altText || file.filename}
                                                 className="w-full h-full object-cover"
                                                 width={400}
                                                 height={400}
                                             />
                                         </div>
                                         <div className="flex-1">
-                                            <p className="text-sm font-medium">{file.original_name}</p>
+                                            <p className="text-sm font-medium">{file.filename}</p>
                                             <p className="text-xs text-gray-500">
                                                 {file.width}x{file.height} • {Math.round(file.size / 1024)}KB
                                             </p>

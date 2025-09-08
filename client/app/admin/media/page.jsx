@@ -39,13 +39,12 @@ export default function MediaManager() {
     const [uploadProgress, setUploadProgress] = useState({});
     const [copiedUrl, setCopiedUrl] = useState('');
 
-    const ITEMS_PER_PAGE = 24;
+    const ITEMS_PER_PAGE = 50;
 
     const loadMedia = async () => {
         try {
             const res = await fetch('/api/admin/media');
             const data = await res.json();
-            console.log(data)
             setMediaFiles(Array.isArray(data.files) ? data.files : []);
         } catch (error) {
             console.error('Error loading media:', error);
@@ -130,7 +129,7 @@ export default function MediaManager() {
             });
 
             if (res.ok) {
-                setMediaFiles(prev => prev.filter(f => f.id !== id));
+                setMediaFiles(prev => prev.filter(f => f._id !== id));
                 showNotification('File eliminato con successo', 'success');
                 setSelectedFile(null);
             }
@@ -159,7 +158,7 @@ export default function MediaManager() {
 
             if (res.ok) {
                 setMediaFiles(prev => prev.map(f => 
-                    f.id === id ? { ...f, alt_text: altText } : f
+                    f._id === id ? { ...f, alt_text: altText } : f
                 ));
                 setEditingFile(null);
                 showNotification('Alt text aggiornato', 'success');
@@ -202,8 +201,8 @@ export default function MediaManager() {
     };
 
     // Filter media
-    const filteredMedia = mediaFiles.filter(file => file && (file?.original_name?.toLowerCase().includes(searchQuery?.toLowerCase()) ||
-        (file.alt_text && file?.alt_text?.toLowerCase().includes(searchQuery?.toLowerCase())))
+    const filteredMedia = mediaFiles.filter(file => file && (file?.filename?.toLowerCase().includes(searchQuery?.toLowerCase()) ||
+        (file?.altText && file?.altText?.toLowerCase().includes(searchQuery?.toLowerCase())))
     );
 
     // Paginate
@@ -343,9 +342,9 @@ export default function MediaManager() {
                         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
                             {paginatedMedia.map((file) => (
                                 <div
-                                    key={file.id}
+                                    key={file._id}
                                     className={`relative group cursor-pointer rounded-lg overflow-hidden border-2 transition-all ${
-                                        selectedFiles.includes(file.id)
+                                        selectedFiles.includes(file._id)
                                             ? 'border-blue-500'
                                             : 'border-gray-200 dark:border-gray-700 hover:border-gray-400'
                                     }`}
@@ -354,13 +353,13 @@ export default function MediaManager() {
                                     {/* Checkbox */}
                                     <input
                                         type="checkbox"
-                                        checked={selectedFiles.includes(file.id)}
+                                        checked={selectedFiles.includes(file._id)}
                                         onChange={(e) => {
                                             e.stopPropagation();
                                             if (e.target.checked) {
-                                                setSelectedFiles([...selectedFiles, file.id]);
+                                                setSelectedFiles([...selectedFiles, file._id]);
                                             } else {
-                                                setSelectedFiles(selectedFiles.filter(id => id !== file.id));
+                                                setSelectedFiles(selectedFiles.filter(id => id !== file._id));
                                             }
                                         }}
                                         className="absolute top-2 left-2 z-10"
@@ -370,7 +369,7 @@ export default function MediaManager() {
                                     <div className="aspect-square bg-gray-100 dark:bg-gray-800">
                                         <Image
                                             src={file.url}
-                                            alt={file.alt_text || file.original_name}
+                                            alt={file.altText || file.filename}
                                             className="w-full h-full object-cover"
                                             unoptimized
                                             width={400}
@@ -397,7 +396,7 @@ export default function MediaManager() {
                                             <button
                                                 onClick={(e) => {
                                                     e.stopPropagation();
-                                                    deleteMedia(file.id);
+                                                    deleteMedia(file._id);
                                                 }}
                                                 className="p-2 bg-white rounded-lg hover:bg-red-100"
                                             >
@@ -409,7 +408,7 @@ export default function MediaManager() {
                                     {/* File info */}
                                     <div className="p-2 bg-white dark:bg-gray-900">
                                         <p className="text-xs truncate text-gray-700 dark:text-gray-300">
-                                            {file.original_name}
+                                            {file.filename}
                                         </p>
                                         <p className="text-xs text-gray-500">
                                             {formatFileSize(file.size)}
@@ -428,7 +427,7 @@ export default function MediaManager() {
                                                 type="checkbox"
                                                 onChange={(e) => {
                                                     if (e.target.checked) {
-                                                        setSelectedFiles(paginatedMedia.map(f => f.id));
+                                                        setSelectedFiles(paginatedMedia.map(f => f._id));
                                                     } else {
                                                         setSelectedFiles([]);
                                                     }
@@ -457,16 +456,16 @@ export default function MediaManager() {
                                 </thead>
                                 <tbody className="divide-y divide-gray-200 dark:divide-gray-800">
                                     {paginatedMedia.map((file) => (
-                                        <tr key={file.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
+                                        <tr key={file._id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
                                             <td className="px-4 py-3">
                                                 <input
                                                     type="checkbox"
-                                                    checked={selectedFiles.includes(file.id)}
+                                                    checked={selectedFiles.includes(file._id)}
                                                     onChange={(e) => {
                                                         if (e.target.checked) {
-                                                            setSelectedFiles([...selectedFiles, file.id]);
+                                                            setSelectedFiles([...selectedFiles, file._id]);
                                                         } else {
-                                                            setSelectedFiles(selectedFiles.filter(id => id !== file.id));
+                                                            setSelectedFiles(selectedFiles.filter(id => id !== file._id));
                                                         }
                                                     }}
                                                 />
@@ -474,7 +473,7 @@ export default function MediaManager() {
                                             <td className="px-4 py-3">
                                                 <Image
                                                     src={file.url}
-                                                    alt={file.alt_text || ''}
+                                                    alt={file.altText || ''}
                                                     className="w-12 h-12 object-cover rounded"
                                                     width={400}
                                                     height={400}
@@ -482,21 +481,21 @@ export default function MediaManager() {
                                             </td>
                                             <td className="px-4 py-3">
                                                 <p className="text-sm text-gray-900 dark:text-white">
-                                                    {file.original_name}
+                                                    {file.filename}
                                                 </p>
                                                 <p className="text-xs text-gray-500">
                                                     {file.width && file.height && `${file.width}x${file.height}px`}
                                                 </p>
                                             </td>
                                             <td className="px-4 py-3">
-                                                {editingFile === file.id ? (
+                                                {editingFile === file._id ? (
                                                     <div className="flex gap-2">
                                                         <input
                                                             type="text"
-                                                            defaultValue={file.alt_text}
+                                                            defaultValue={file.altText}
                                                             onKeyDown={(e) => {
                                                                 if (e.key === 'Enter') {
-                                                                    updateMediaAltText(file.id, e.target.value);
+                                                                    updateMediaAltText(file._id, e.target.value);
                                                                 }
                                                             }}
                                                             className="px-2 py-1 text-sm border rounded"
@@ -512,9 +511,9 @@ export default function MediaManager() {
                                                 ) : (
                                                     <div
                                                         className="text-sm text-gray-600 dark:text-gray-400 cursor-pointer hover:text-blue-600"
-                                                        onClick={() => setEditingFile(file.id)}
+                                                        onClick={() => setEditingFile(file._id)}
                                                     >
-                                                        {file.alt_text || 'Clicca per aggiungere'}
+                                                        {file.altText || 'Clicca per aggiungere'}
                                                     </div>
                                                 )}
                                             </td>
@@ -543,7 +542,7 @@ export default function MediaManager() {
                                                         )}
                                                     </button>
                                                     <button
-                                                        onClick={() => deleteMedia(file.id)}
+                                                        onClick={() => deleteMedia(file._id)}
                                                         className="text-gray-400 hover:text-red-600"
                                                     >
                                                         <Trash2 className="w-4 h-4" />
@@ -600,7 +599,7 @@ export default function MediaManager() {
                         <div className="mb-6">
                             <Image
                                 src={selectedFile.url}
-                                alt={selectedFile.alt_text || selectedFile.original_name}
+                                alt={selectedFile.altText || selectedFile.filename}
                                 className="w-full rounded-lg"
                                 width={400}
                                 height={400}
@@ -614,7 +613,7 @@ export default function MediaManager() {
                                     Nome File
                                 </label>
                                 <p className="text-sm text-gray-600 dark:text-gray-400">
-                                    {selectedFile.original_name}
+                                    {selectedFile.filename}
                                 </p>
                             </div>
 
@@ -648,8 +647,8 @@ export default function MediaManager() {
                                 </label>
                                 <input
                                     type="text"
-                                    defaultValue={selectedFile.alt_text || ''}
-                                    onBlur={(e) => updateMediaAltText(selectedFile.id, e.target.value)}
+                                    defaultValue={selectedFile.altText || ''}
+                                    onBlur={(e) => updateMediaAltText(selectedfile._id, e.target.value)}
                                     className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-800 rounded-lg text-sm"
                                     placeholder="Descrizione immagine..."
                                 />
@@ -698,7 +697,7 @@ export default function MediaManager() {
                             </div>
 
                             <button
-                                onClick={() => deleteMedia(selectedFile.id)}
+                                onClick={() => deleteMedia(selectedfile._id)}
                                 className="w-full py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors flex items-center justify-center gap-2"
                             >
                                 <Trash2 className="w-4 h-4" />
