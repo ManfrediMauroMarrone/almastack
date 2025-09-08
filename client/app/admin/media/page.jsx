@@ -41,15 +41,11 @@ export default function MediaManager() {
 
     const ITEMS_PER_PAGE = 24;
 
-    useEffect(() => {
-        loadMedia();
-    }, []);
-
     const loadMedia = async () => {
         try {
             const res = await fetch('/api/admin/media');
             const data = await res.json();
-            setMediaFiles(data);
+            setMediaFiles(Array.isArray(data) ? data : []);
         } catch (error) {
             console.error('Error loading media:', error);
         } finally {
@@ -216,6 +212,10 @@ export default function MediaManager() {
         (currentPage - 1) * ITEMS_PER_PAGE,
         currentPage * ITEMS_PER_PAGE
     );
+
+    useEffect(() => {
+        loadMedia();
+    }, []);
 
     if (isLoading) {
         return (

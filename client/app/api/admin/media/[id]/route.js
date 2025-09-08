@@ -6,7 +6,7 @@ import { media } from '../../../../../lib/db';
 export async function PUT(request, { params }) {
     try {
         const data = await request.json();
-        const updated = media.update(parseInt(params.id), data);
+        const updated = await media.update(parseInt(params.id), data);
         return NextResponse.json(updated);
     } catch (error) {
         return NextResponse.json({ error: 'Failed to update media' }, { status: 500 });
@@ -15,7 +15,7 @@ export async function PUT(request, { params }) {
 
 export async function DELETE(request, { params }) {
     try {
-        const file = media.delete(parseInt(params.id));
+        const file = await media.delete(parseInt(params.id));
         
         if (file) {
             // Delete physical file

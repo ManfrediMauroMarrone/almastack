@@ -2,6 +2,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import NextImage from 'next/image';
 import {
     X,
     Search,
@@ -32,7 +33,7 @@ export default function MediaPicker({ isOpen, onClose, onSelect, multiple = fals
         try {
             const res = await fetch('/api/admin/media');
             const data = await res.json();
-            setMediaFiles(data);
+            setMediaFiles(Array.isArray(data) ? data : []);
         } catch (error) {
             console.error('Error loading media:', error);
         } finally {
@@ -102,6 +103,10 @@ export default function MediaPicker({ isOpen, onClose, onSelect, multiple = fals
                 }
             });
         } else {
+            if (selectedFiles.some(f => f.id === file.id)) {
+                setSelectedFiles([]);
+                return;
+            }
             setSelectedFiles([file]);
         }
     };
@@ -217,7 +222,7 @@ export default function MediaPicker({ isOpen, onClose, onSelect, multiple = fals
                                         }`}
                                     >
                                         <div className="aspect-square bg-gray-100 dark:bg-gray-800">
-                                            <Image
+                                            <NextImage
                                                 src={file.url}
                                                 alt={file.alt_text || file.original_name}
                                                 className="w-full h-full object-cover"
@@ -230,7 +235,7 @@ export default function MediaPicker({ isOpen, onClose, onSelect, multiple = fals
                                                 <Check className="w-4 h-4 text-white" />
                                             </div>
                                         )}
-                                        <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-opacity" />
+                                        {/* <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-opacity" /> */}
                                     </div>
                                 );
                             })}
@@ -250,7 +255,7 @@ export default function MediaPicker({ isOpen, onClose, onSelect, multiple = fals
                                         }`}
                                     >
                                         <div className="w-12 h-12 rounded overflow-hidden bg-gray-100 dark:bg-gray-800">
-                                            <Image
+                                            <NextImage
                                                 src={file.url}
                                                 alt={file.alt_text || file.original_name}
                                                 className="w-full h-full object-cover"

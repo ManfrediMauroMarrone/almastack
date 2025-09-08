@@ -15,11 +15,11 @@ export async function GET(request) {
         const offset = (page - 1) * limit;
         
         if (query) {
-            const results = media.search(query);
+            const results = await media.search(query);
             return NextResponse.json(results);
         }
         
-        const files = media.getAll(limit, offset);
+        const files = await media.getAll(limit, offset);
         return NextResponse.json(files);
     } catch (error) {
         console.log(error);
@@ -93,7 +93,7 @@ export async function POST(request) {
         await writeFile(filepath, processedBuffer);
 
         // Save to database
-        const mediaEntry = media.create({
+        const mediaEntry = await media.create({
             filename: filename,
             originalName: file.name,
             path: filepath,

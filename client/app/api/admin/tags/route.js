@@ -8,11 +8,11 @@ export async function GET(request) {
         const query = searchParams.get('q');
         
         if (query) {
-            const results = tags.search(query);
+            const results = await tags.search(query);
             return NextResponse.json(results);
         }
         
-        const allTags = tags.getAll();
+        const allTags = await tags.getAll();
         return NextResponse.json(allTags);
     } catch (error) {
         return NextResponse.json({ error: 'Failed to fetch tags' }, { status: 500 });
@@ -25,10 +25,10 @@ export async function POST(request) {
         
         // Handle single tag or multiple tags
         if (Array.isArray(data)) {
-            tags.createMany(data);
+            await tags.createMany(data);
             return NextResponse.json({ success: true, count: data.length });
         } else {
-            const tag = tags.create(data);
+            const tag = await tags.create(data);
             return NextResponse.json(tag);
         }
     } catch (error) {

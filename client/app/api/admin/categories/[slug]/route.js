@@ -21,7 +21,7 @@ export async function PUT(request, { params }) {
         params = await params;
 
         const data = await request.json();
-        const category = categories.update(params.slug, data);
+        const category = await categories.update(params.slug, data);
         return NextResponse.json(category);
     } catch (error) {
         return NextResponse.json({ error: 'Failed to update category' }, { status: 500 });
@@ -32,7 +32,7 @@ export async function DELETE(request, { params }) {
     try {
         params = await params;
         
-        categories.delete(params.slug);
+        await categories.delete(params.slug);
         return NextResponse.json({ success: true });
     } catch (error) {
         return NextResponse.json({ error: 'Failed to delete category' }, { status: 500 });

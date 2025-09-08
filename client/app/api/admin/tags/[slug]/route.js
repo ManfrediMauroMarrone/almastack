@@ -6,7 +6,7 @@ export async function DELETE(request, { params }) {
     try {
         params = await params;
         
-        tags.delete(params.slug);
+        await tags.delete(params.slug);
         return NextResponse.json({ success: true });
     } catch (error) {
         return NextResponse.json({ error: 'Failed to delete tag' }, { status: 500 });

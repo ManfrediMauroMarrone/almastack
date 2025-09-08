@@ -21,7 +21,7 @@ export async function PUT(request, { params }) {
         params = await params;
         
         const data = await request.json();
-        const author = authors.update(params.slug, data);
+        const author = await authors.update(params.slug, data);
         return NextResponse.json(author);
     } catch (error) {
         return NextResponse.json({ error: 'Failed to update author' }, { status: 500 });
@@ -30,7 +30,7 @@ export async function PUT(request, { params }) {
 
 export async function DELETE(request, { params }) {
     try {
-        authors.delete(params.slug);
+        await authors.delete(params.slug);
         return NextResponse.json({ success: true });
     } catch (error) {
         return NextResponse.json({ error: 'Failed to delete author' }, { status: 500 });

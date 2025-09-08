@@ -110,17 +110,17 @@ export default function AdvancedPostEditor() {
             // Load authors
             const authorsRes = await fetch('/api/admin/authors');
             const authorsData = await authorsRes.json();
-            setAuthors(authorsData);
+            setAuthors(Array.isArray(authorsData) ? authorsData : []);
 
             // Load categories
             const categoriesRes = await fetch('/api/admin/categories');
             const categoriesData = await categoriesRes.json();
-            setCategories(categoriesData);
+            setCategories(Array.isArray(categoriesData) ? categoriesData : []);
 
             // Load tags
             const tagsRes = await fetch('/api/admin/tags');
             const tagsData = await tagsRes.json();
-            setAllTags(tagsData);
+            setAllTags(Array.isArray(tagsData) ? tagsData : []);
         } catch (error) {
             console.error('Error loading initial data:', error);
         }

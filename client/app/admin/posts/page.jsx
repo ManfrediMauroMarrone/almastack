@@ -62,12 +62,12 @@ export default function PostsListPage() {
             // Load categories
             const categoriesRes = await fetch('/api/admin/categories');
             const categoriesData = await categoriesRes.json();
-            setCategories(categoriesData);
+            setCategories(Array.isArray(categoriesData) ? categoriesData : []);
 
             // Load authors
             const authorsRes = await fetch('/api/admin/authors');
             const authorsData = await authorsRes.json();
-            setAuthors(authorsData);
+            setAuthors(Array.isArray(authorsData) ? authorsData : []);
         } catch (error) {
             console.error('Error loading data:', error);
         } finally {
