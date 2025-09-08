@@ -1,98 +1,98 @@
 import { NextResponse } from 'next/server';
-import fs from 'fs/promises';
-import path from 'path';
-import matter from 'gray-matter';
+import { posts, tags as tagsDb } from '../../../../lib/db';
+import readingTime from 'reading-time';
 
-const POSTS_PATH = path.join(process.cwd(), 'content/blog');
-
-// Helper to ensure directory exists
-async function ensureDir() {
+// GET all posts
+export async function GET(request) {
     try {
-        await fs.access(POSTS_PATH);
-    } catch {
-        await fs.mkdir(POSTS_PATH, { recursive: true });
-    }
-}
-
-// GET - List all posts
-export async function GET() {
-    try {
-        await ensureDir();
-        const files = await fs.readdir(POSTS_PATH);
-        const mdxFiles = files.filter(file => file.endsWith('.mdx'));
-
-        const posts = await Promise.all(
-            mdxFiles.map(async (file) => {
-                const filePath = path.join(POSTS_PATH, file);
-                const content = await fs.readFile(filePath, 'utf-8');
-                const { data, content: mdxContent } = matter(content);
-
-                return {
-                    slug: file.replace('.mdx', ''),
-                    title: data.title || 'Untitled',
-                    date: data.date || new Date().toISOString(),
-                    excerpt: data.excerpt || '',
-                    author: data.author || 'Anonymous',
-                    category: data.category || 'Uncategorized',
-                    tags: data.tags || [],
-                    draft: data.draft || false,
-                    featured: data.featured || false,
-                    wordCount: mdxContent.split(/\s+/).length,
-                };
-            })
-        );
-
-        // Sort by date
-        posts.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-
-        return NextResponse.json(posts);
+        const allPosts = await posts.getAll();
+        
+        // Format posts for response
+        const formattedPosts = allPosts.map(post => ({
+            ...post,
+            // Ensure consistent field names
+            authorImage: post.author_image || post.authorImage,
+            coverImage: post.cover_image || post.coverImage,
+            readingTime: post.reading_time || readingTime(post.content || '').text,
+        }));
+        
+        return NextResponse.json(formattedPosts);
     } catch (error) {
-        console.error('Error reading posts:', error);
-        return NextResponse.json({ error: 'Failed to read posts' }, { status: 500 });
+        console.error('Error fetching posts:', error);
+        return NextResponse.json(
+            { error: 'Failed to fetch posts' },
+            { status: 500 }
+        );
     }
 }
 
-// POST - Create new post
+// POST create new post
 export async function POST(request) {
     try {
         const data = await request.json();
-
-        // Generate frontmatter
-        const frontmatter = {
-            title: data.title,
-            date: data.date || new Date().toISOString().split('T')[0],
-            excerpt: data.excerpt || '',
-            author: data.author || 'Team AlmaStack',
-            authorImage: data.authorImage,
-            coverImage: data.coverImage,
-            category: data.category || 'Uncategorized',
-            tags: data.tags || [],
-            draft: data.draft ?? true,
-            featured: data.featured || false,
-        };
-
-        // Create MDX content
-        const fileContent = matter.stringify(data.content || '', frontmatter);
-
-        // Generate filename
-        const slug = data.slug || data.title.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-        const filePath = path.join(POSTS_PATH, `${slug}.mdx`);
-
-        // Check if file exists
-        try {
-            await fs.access(filePath);
-            return NextResponse.json({ error: 'Post already exists' }, { status: 409 });
-        } catch {
-            // File doesn't exist, proceed
+        
+        // Validate required fields
+        if (!data.title || !data.content) {
+            return NextResponse.json(
+                { error: 'Title and content are required' },
+                { status: 400 }
+            );
         }
-
-        // Write file
-        await ensureDir();
-        await fs.writeFile(filePath, fileContent, 'utf-8');
-
-        return NextResponse.json({ slug, message: 'Post created successfully' });
+        
+        // Generate slug if not provided
+        if (!data.slug) {
+            data.slug = data.title
+                .toLowerCase()
+                .replace(/[^a-z0-9]+/g, '-')
+                .replace(/^-+|-+$/g, '');
+        }
+        
+        // Check if slug already exists
+        const existingPost = await posts.getBySlug(data.slug);
+        if (existingPost) {
+            return NextResponse.json(
+                { error: 'A post with this slug already exists' },
+                { status: 409 }
+            );
+        }
+        
+        // Calculate reading time
+        const calculatedReadingTime = readingTime(data.content).text;
+        
+        // Create tags if they don't exist
+        if (data.tags && Array.isArray(data.tags)) {
+            for (const tagName of data.tags) {
+                const tagSlug = tagName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+                await tagsDb.create({ slug: tagSlug, name: tagName });
+            }
+        }
+        
+        // Prepare post data
+        const postData = {
+            slug: data.slug,
+            title: data.title,
+            content: data.content,
+            excerpt: data.excerpt || '',
+            date: data.date || new Date().toISOString().split('T')[0],
+            author: data.author || 'Alessandro D\'Antoni',
+            authorImage: data.authorImage || '/images/authors/alessandro_avatar-min.webp',
+            coverImage: data.coverImage || null,
+            category: data.category || null,
+            tags: data.tags || [],
+            draft: data.draft !== undefined ? data.draft : true,
+            featured: data.featured || false,
+            readingTime: calculatedReadingTime
+        };
+        
+        // Create post
+        const newPost = await posts.create(postData);
+        
+        return NextResponse.json(newPost, { status: 201 });
     } catch (error) {
         console.error('Error creating post:', error);
-        return NextResponse.json({ error: 'Failed to create post' }, { status: 500 });
+        return NextResponse.json(
+            { error: 'Failed to create post', details: error.message },
+            { status: 500 }
+        );
     }
 }

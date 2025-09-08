@@ -1,107 +1,148 @@
 import { NextResponse } from 'next/server';
-import fs from 'fs/promises';
-import path from 'path';
-import matter from 'gray-matter';
+import { posts, tags as tagsDb } from '../../../../../lib/db';
+import readingTime from 'reading-time';
 
-const POSTS_PATH = path.join(process.cwd(), 'content/blog');
-
-// GET - Get single post
+// GET single post by slug
 export async function GET(request, { params }) {
     try {
-        params = await params;
-
-        const filePath = path.join(POSTS_PATH, `${params.slug}.mdx`);
-        const content = await fs.readFile(filePath, 'utf-8');
-        const { data, content: mdxContent } = matter(content);
-
-        return NextResponse.json({
-            slug: params.slug,
-            title: data.title || '',
-            content: mdxContent,
-            excerpt: data.excerpt || '',
-            date: data.date || new Date().toISOString().split('T')[0],
-            author: data.author || 'Team AlmaStack',
-            authorImage: data.authorImage || '',
-            coverImage: data.coverImage || '',
-            category: data.category || 'Uncategorized',
-            tags: data.tags || [],
-            draft: data.draft ?? false,
-            featured: data.featured || false,
-        });
+        const { slug } = await params;
+        
+        if (!slug) {
+            return NextResponse.json(
+                { error: 'Slug is required' },
+                { status: 400 }
+            );
+        }
+        
+        const post = await posts.getBySlug(slug);
+        
+        if (!post) {
+            return NextResponse.json(
+                { error: 'Post not found' },
+                { status: 404 }
+            );
+        }
+        
+        // Format post for response
+        const formattedPost = {
+            ...post,
+            // Ensure consistent field names
+            authorImage: post.author_image || post.authorImage,
+            coverImage: post.cover_image || post.coverImage,
+            readingTime: post.reading_time || readingTime(post.content || '').text,
+        };
+        
+        return NextResponse.json(formattedPost);
     } catch (error) {
-        return NextResponse.json({ error: 'Post not found' }, { status: 404 });
+        console.error('Error fetching post:', error);
+        return NextResponse.json(
+            { error: 'Failed to fetch post' },
+            { status: 500 }
+        );
     }
 }
 
-// PUT - Update post
+// PUT update post
 export async function PUT(request, { params }) {
     try {
-        params = await params;
-
+        const { slug } = await params;
         const data = await request.json();
-        const oldPath = path.join(POSTS_PATH, `${params.slug}.mdx`);
-
-        // Check if file exists
-        try {
-            await fs.access(oldPath);
-        } catch {
-            return NextResponse.json({ error: 'Post not found' }, { status: 404 });
+        
+        if (!slug) {
+            return NextResponse.json(
+                { error: 'Slug is required' },
+                { status: 400 }
+            );
         }
-
-        // Generate frontmatter
-        const frontmatter = {
-            title: data.title,
-            date: data.date,
-            excerpt: data.excerpt,
-            author: data.author,
-            authorImage: data.authorImage,
-            coverImage: data.coverImage,
-            category: data.category,
-            tags: data.tags,
-            draft: data.draft,
-            featured: data.featured,
-        };
-
-        // Create MDX content
-        const fileContent = matter.stringify(data.content, frontmatter);
-
-        // If slug changed, rename file
-        const newSlug = data.slug || params.slug;
-        const newPath = path.join(POSTS_PATH, `${newSlug}.mdx`);
-
-        if (oldPath !== newPath) {
-            // Check if new file already exists
-            try {
-                await fs.access(newPath);
-                return NextResponse.json({ error: 'A post with this slug already exists' }, { status: 409 });
-            } catch {
-                // New file doesn't exist, proceed
+        
+        // Check if post exists
+        const existingPost = await posts.getBySlug(slug);
+        if (!existingPost) {
+            return NextResponse.json(
+                { error: 'Post not found' },
+                { status: 404 }
+            );
+        }
+        
+        // If slug is being changed, check if new slug already exists
+        if (data.slug && data.slug !== slug) {
+            const postWithNewSlug = await posts.getBySlug(data.slug);
+            if (postWithNewSlug) {
+                return NextResponse.json(
+                    { error: 'A post with the new slug already exists' },
+                    { status: 409 }
+                );
             }
-
-            // Write new file and delete old
-            await fs.writeFile(newPath, fileContent, 'utf-8');
-            await fs.unlink(oldPath);
-        } else {
-            // Just update the file
-            await fs.writeFile(oldPath, fileContent, 'utf-8');
         }
-
-        return NextResponse.json({ slug: newSlug, message: 'Post updated successfully' });
+        
+        // Calculate reading time if content has changed
+        if (data.content) {
+            data.readingTime = readingTime(data.content).text;
+        }
+        
+        // Create tags if they don't exist
+        if (data.tags && Array.isArray(data.tags)) {
+            for (const tagName of data.tags) {
+                const tagSlug = tagName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+                await tagsDb.create({ slug: tagSlug, name: tagName });
+            }
+        }
+        
+        // Update post
+        const updatedPost = await posts.update(slug, data);
+        
+        // Format post for response
+        const formattedPost = {
+            ...updatedPost,
+            // Ensure consistent field names
+            authorImage: updatedPost.author_image || updatedPost.authorImage,
+            coverImage: updatedPost.cover_image || updatedPost.coverImage,
+            readingTime: updatedPost.reading_time || readingTime(updatedPost.content || '').text,
+        };
+        
+        return NextResponse.json(formattedPost);
     } catch (error) {
         console.error('Error updating post:', error);
-        return NextResponse.json({ error: 'Failed to update post' }, { status: 500 });
+        return NextResponse.json(
+            { error: 'Failed to update post', details: error.message },
+            { status: 500 }
+        );
     }
 }
 
-// DELETE - Delete post
+// DELETE post
 export async function DELETE(request, { params }) {
     try {
-        params = await params;
+        const { slug } = await params;
         
-        const filePath = path.join(POSTS_PATH, `${params.slug}.mdx`);
-        await fs.unlink(filePath);
-        return NextResponse.json({ message: 'Post deleted successfully' });
+        if (!slug) {
+            return NextResponse.json(
+                { error: 'Slug is required' },
+                { status: 400 }
+            );
+        }
+        
+        // Check if post exists
+        const existingPost = await posts.getBySlug(slug);
+        if (!existingPost) {
+            return NextResponse.json(
+                { error: 'Post not found' },
+                { status: 404 }
+            );
+        }
+        
+        // Delete post
+        await posts.delete(slug);
+        
+        return NextResponse.json(
+            { message: 'Post deleted successfully' },
+            { status: 200 }
+        );
     } catch (error) {
-        return NextResponse.json({ error: 'Failed to delete post' }, { status: 500 });
+        console.error('Error deleting post:', error);
+        return NextResponse.json(
+            { error: 'Failed to delete post' },
+            { status: 500 }
+        );
     }
 }

@@ -218,6 +218,29 @@ class DatabaseManager {
     initializeSchema() {
         // Use transaction for atomic schema creation
         const createSchema = this.db.transaction(() => {
+            // Posts table - NEW
+            this.db.exec(`
+                CREATE TABLE IF NOT EXISTS posts (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    slug TEXT UNIQUE NOT NULL,
+                    title TEXT NOT NULL,
+                    content TEXT NOT NULL,
+                    excerpt TEXT,
+                    date TEXT DEFAULT CURRENT_TIMESTAMP,
+                    author TEXT NOT NULL,
+                    author_image TEXT,
+                    cover_image TEXT,
+                    category TEXT,
+                    tags TEXT, -- JSON array stored as text
+                    draft INTEGER DEFAULT 1,
+                    featured INTEGER DEFAULT 0,
+                    reading_time TEXT,
+                    views INTEGER DEFAULT 0,
+                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                )
+            `);
+
             // Authors table
             this.db.exec(`
                 CREATE TABLE IF NOT EXISTS authors (
@@ -291,6 +314,11 @@ class DatabaseManager {
 
             // Create indexes for better performance
             this.db.exec(`
+                CREATE INDEX IF NOT EXISTS idx_posts_slug ON posts(slug);
+                CREATE INDEX IF NOT EXISTS idx_posts_date ON posts(date DESC);
+                CREATE INDEX IF NOT EXISTS idx_posts_draft ON posts(draft);
+                CREATE INDEX IF NOT EXISTS idx_posts_featured ON posts(featured);
+                CREATE INDEX IF NOT EXISTS idx_posts_category ON posts(category);
                 CREATE INDEX IF NOT EXISTS idx_authors_slug ON authors(slug);
                 CREATE INDEX IF NOT EXISTS idx_categories_slug ON categories(slug);
                 CREATE INDEX IF NOT EXISTS idx_tags_slug ON tags(slug);
@@ -433,6 +461,234 @@ async function ensureInitialized() {
     }
     return initializationPromise;
 }
+
+// Posts operations - NEW
+export const posts = {
+    getAll: async () => {
+        await ensureInitialized();
+        return dbManager.executeWithRetry(db => {
+            const rows = db.prepare(`
+                SELECT * FROM posts 
+                ORDER BY date DESC, created_at DESC
+            `).all();
+            
+            // Parse JSON tags
+            return rows.map(row => ({
+                ...row,
+                tags: row.tags ? JSON.parse(row.tags) : [],
+                draft: Boolean(row.draft),
+                featured: Boolean(row.featured)
+            }));
+        });
+    },
+
+    getPublished: async () => {
+        await ensureInitialized();
+        return dbManager.executeWithRetry(db => {
+            const rows = db.prepare(`
+                SELECT * FROM posts 
+                WHERE draft = 0 
+                ORDER BY date DESC, created_at DESC
+            `).all();
+            
+            // Parse JSON tags
+            return rows.map(row => ({
+                ...row,
+                tags: row.tags ? JSON.parse(row.tags) : [],
+                draft: false,
+                featured: Boolean(row.featured)
+            }));
+        });
+    },
+
+    getBySlug: async (slug) => {
+        await ensureInitialized();
+        return dbManager.executeWithRetry(db => {
+            const row = db.prepare('SELECT * FROM posts WHERE slug = ?').get(slug);
+            if (!row) return null;
+            
+            return {
+                ...row,
+                tags: row.tags ? JSON.parse(row.tags) : [],
+                draft: Boolean(row.draft),
+                featured: Boolean(row.featured)
+            };
+        });
+    },
+
+    create: async (post) => {
+        await ensureInitialized();
+        return dbManager.executeWithRetry(db => {
+            const stmt = db.prepare(`
+                INSERT INTO posts (
+                    slug, title, content, excerpt, date, author, 
+                    author_image, cover_image, category, tags, 
+                    draft, featured, reading_time
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            `);
+            
+            const result = stmt.run(
+                post.slug,
+                post.title,
+                post.content,
+                post.excerpt || '',
+                post.date || new Date().toISOString().split('T')[0],
+                post.author,
+                post.authorImage || post.author_image || null,
+                post.coverImage || post.cover_image || null,
+                post.category || null,
+                JSON.stringify(post.tags || []),
+                post.draft ? 1 : 0,
+                post.featured ? 1 : 0,
+                post.readingTime || post.reading_time || null
+            );
+            
+            return { id: result.lastInsertRowid, ...post };
+        });
+    },
+
+    update: async (slug, updates) => {
+        await ensureInitialized();
+        return dbManager.executeWithRetry(db => {
+            // Prepare the update object
+            const updateData = { ...updates };
+            
+            // Handle special fields
+            if ('tags' in updateData && Array.isArray(updateData.tags)) {
+                updateData.tags = JSON.stringify(updateData.tags);
+            }
+            if ('draft' in updateData) {
+                updateData.draft = updateData.draft ? 1 : 0;
+            }
+            if ('featured' in updateData) {
+                updateData.featured = updateData.featured ? 1 : 0;
+            }
+            if ('authorImage' in updateData) {
+                updateData.author_image = updateData.authorImage;
+                delete updateData.authorImage;
+            }
+            if ('coverImage' in updateData) {
+                updateData.cover_image = updateData.coverImage;
+                delete updateData.coverImage;
+            }
+            if ('readingTime' in updateData) {
+                updateData.reading_time = updateData.readingTime;
+                delete updateData.readingTime;
+            }
+            
+            const fields = Object.keys(updateData).map(key => `${key} = ?`).join(', ');
+            const values = [...Object.values(updateData), slug];
+            
+            const stmt = db.prepare(`
+                UPDATE posts 
+                SET ${fields}, updated_at = CURRENT_TIMESTAMP 
+                WHERE slug = ?
+            `);
+            stmt.run(values);
+            
+            return posts.getBySlug(slug);
+        });
+    },
+
+    delete: async (slug) => {
+        await ensureInitialized();
+        return dbManager.executeWithRetry(db => {
+            const stmt = db.prepare('DELETE FROM posts WHERE slug = ?');
+            return stmt.run(slug);
+        });
+    },
+
+    search: async (query) => {
+        await ensureInitialized();
+        return dbManager.executeWithRetry(db => {
+            const searchPattern = `%${query}%`;
+            const rows = db.prepare(`
+                SELECT * FROM posts 
+                WHERE title LIKE ? 
+                   OR excerpt LIKE ? 
+                   OR content LIKE ?
+                   OR category LIKE ?
+                   OR tags LIKE ?
+                ORDER BY date DESC
+            `).all(searchPattern, searchPattern, searchPattern, searchPattern, searchPattern);
+            
+            return rows.map(row => ({
+                ...row,
+                tags: row.tags ? JSON.parse(row.tags) : [],
+                draft: Boolean(row.draft),
+                featured: Boolean(row.featured)
+            }));
+        });
+    },
+
+    getByCategory: async (category) => {
+        await ensureInitialized();
+        return dbManager.executeWithRetry(db => {
+            const rows = db.prepare(`
+                SELECT * FROM posts 
+                WHERE category = ? AND draft = 0
+                ORDER BY date DESC
+            `).all(category);
+            
+            return rows.map(row => ({
+                ...row,
+                tags: row.tags ? JSON.parse(row.tags) : [],
+                draft: false,
+                featured: Boolean(row.featured)
+            }));
+        });
+    },
+
+    getByTag: async (tag) => {
+        await ensureInitialized();
+        return dbManager.executeWithRetry(db => {
+            const searchPattern = `%"${tag}"%`;
+            const rows = db.prepare(`
+                SELECT * FROM posts 
+                WHERE tags LIKE ? AND draft = 0
+                ORDER BY date DESC
+            `).all(searchPattern);
+            
+            return rows.map(row => ({
+                ...row,
+                tags: row.tags ? JSON.parse(row.tags) : [],
+                draft: false,
+                featured: Boolean(row.featured)
+            }));
+        });
+    },
+
+    getFeatured: async () => {
+        await ensureInitialized();
+        return dbManager.executeWithRetry(db => {
+            const rows = db.prepare(`
+                SELECT * FROM posts 
+                WHERE featured = 1 AND draft = 0
+                ORDER BY date DESC
+            `).all();
+            
+            return rows.map(row => ({
+                ...row,
+                tags: row.tags ? JSON.parse(row.tags) : [],
+                draft: false,
+                featured: true
+            }));
+        });
+    },
+
+    incrementViews: async (slug) => {
+        await ensureInitialized();
+        return dbManager.executeWithRetry(db => {
+            const stmt = db.prepare(`
+                UPDATE posts 
+                SET views = views + 1 
+                WHERE slug = ?
+            `);
+            return stmt.run(slug);
+        });
+    }
+};
 
 // Authors operations
 export const authors = {
@@ -722,6 +978,7 @@ if (typeof process !== 'undefined') {
 
 // Default export for backward compatibility
 export default {
+    posts,
     authors,
     categories,
     tags,
