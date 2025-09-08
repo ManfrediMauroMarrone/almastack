@@ -44,7 +44,7 @@ export async function POST(request) {
 
         // Create upload directory
         const uploadDir = path.join(process.cwd(), 'public/images/blog');
-        await mkdir(uploadDir, { recursive: true });
+        await mkdir(uploadDir, { recursive: true, mode: "777" });
 
         // Generate unique filename
         const timestamp = Date.now();
@@ -90,7 +90,7 @@ export async function POST(request) {
         }
 
         // Save file
-        await writeFile(filepath, processedBuffer);
+        await writeFile(filepath, processedBuffer, { mode: "777" });
 
         // Save to database
         const mediaEntry = await media.create({

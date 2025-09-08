@@ -5,6 +5,8 @@ import { media } from '../../../../../lib/db';
 
 export async function PUT(request, { params }) {
     try {
+        params = await params;
+        
         const data = await request.json();
         const updated = await media.update(parseInt(params.id), data);
         return NextResponse.json(updated);
@@ -15,6 +17,8 @@ export async function PUT(request, { params }) {
 
 export async function DELETE(request, { params }) {
     try {
+        params = await params;
+        
         const file = await media.delete(parseInt(params.id));
         
         if (file) {

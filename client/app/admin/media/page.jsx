@@ -201,9 +201,8 @@ export default function MediaManager() {
     };
 
     // Filter media
-    const filteredMedia = mediaFiles.filter(file =>
-        file.original_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (file.alt_text && file.alt_text.toLowerCase().includes(searchQuery.toLowerCase()))
+    const filteredMedia = mediaFiles.filter(file => file && (file?.original_name?.toLowerCase().includes(searchQuery?.toLowerCase()) ||
+        (file.alt_text && file?.alt_text?.toLowerCase().includes(searchQuery?.toLowerCase())))
     );
 
     // Paginate
