@@ -22,6 +22,7 @@ export async function GET(request) {
         const files = media.getAll(limit, offset);
         return NextResponse.json(files);
     } catch (error) {
+        console.log(error);
         return NextResponse.json({ error: 'Failed to fetch media' }, { status: 500 });
     }
 }
