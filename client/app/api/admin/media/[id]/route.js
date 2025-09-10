@@ -8,7 +8,7 @@ export async function PUT(request, { params }) {
         params = await params;
         
         const data = await request.json();
-        const updated = await media.update(parseInt(params.id), data);
+        const updated = await media.update(params.id, data);
         
         return NextResponse.json(updated);
     } catch (error) {
@@ -25,7 +25,7 @@ export async function DELETE(request, { params }) {
         params = await params;
         
         // Get the media record from database first
-        const file = await media.getById(parseInt(params.id));
+        const file = await media.getById(params.id);
         
         if (!file) {
             return NextResponse.json({ 
@@ -34,7 +34,7 @@ export async function DELETE(request, { params }) {
         }
         
         // Delete from database
-        const deleted = await media.delete(parseInt(params.id));
+        const deleted = await media.delete(params.id);
         
         if (deleted) {
             // Delete from Netlify Blobs storage
@@ -58,7 +58,7 @@ export async function DELETE(request, { params }) {
         
         return NextResponse.json({ 
             success: true,
-            deletedId: parseInt(params.id),
+            deletedId: params.id,
             filename: file.filename 
         });
         
@@ -76,7 +76,7 @@ export async function GET(request, { params }) {
     try {
         params = await params;
         
-        const file = await media.getById(parseInt(params.id));
+        const file = await media.getById(params.id);
         
         if (!file) {
             return NextResponse.json({ 
@@ -94,7 +94,7 @@ export async function GET(request, { params }) {
             if (blobUrl && blobUrl !== file.url) {
                 file.url = blobUrl;
                 // Optionally update in database
-                await media.update(parseInt(params.id), { url: blobUrl });
+                await media.update(params.id, { url: blobUrl });
             }
         } catch (blobError) {
             console.error('Error getting blob URL:', blobError);
