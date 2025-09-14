@@ -102,7 +102,7 @@ const Navbar = ({ translate }) => {
                             {navItems.map((item) => (
                                 <a
                                     key={item}
-                                    href={`#${item.toLowerCase().replace(' ', '-')}`}
+                                    href={`${item.startsWith('/') ? '' : '/#'}${item.toLowerCase().replace(' ', '-')}`}
                                     onClick={() => setIsOpen(false)}
                                     className={`block py-4 hover:text-indigo-600 transition-colors font-medium text-lg ${
                                         hash === item.toLowerCase().replace(' ', '-') ? 'text-indigo-600' : 'text-gray-700'
